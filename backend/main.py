@@ -16,6 +16,7 @@ from routers.recruitment import router as recruitment_router
 from routers.ai import router as ai_router
 from routers.dashboard import router as dashboard_router
 from routers.analytics import router as analytics_router
+from fastapi.middleware.cors import CORSMiddleware
 
 ensure_upload_dir()
 ensure_voice_upload_dir()
@@ -24,7 +25,13 @@ app = FastAPI(
     title=settings.APP_NAME
 )
 
-
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=["http://localhost:5173"],
+  allow_credentials=True,
+  allow_methods=["*"],
+  allow_headers=["*"],
+)
 app.include_router(auth_router)
 app.include_router(employees_router)
 app.include_router(departments_router)

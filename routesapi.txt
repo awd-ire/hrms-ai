@@ -1,0 +1,162 @@
+Files (routers)
+
+backend/routers/auth.py — auth (register/login/token/me)
+backend/routers/ai.py — AI endpoints (resume screen/rank/chat/transcribe/interview conduct)
+backend/routers/recruitment.py — jobs, candidates, interviews, resume download
+backend/routers/employees.py — employee CRUD & summaries, team endpoints
+backend/routers/dashboard.py — admin/manager/hr/employee dashboards
+backend/routers/departments.py
+backend/routers/attendance.py
+backend/routers/leave.py
+backend/routers/payroll.py
+backend/routers/performance.py
+backend/routers/analytics.py
+Files (schemas)
+
+backend/schemas/auth.py — UserRegister, UserLogin, TokenResponse, UserResponse
+backend/schemas/ai.py — resume screen, rank, chat, transcribe schemas
+backend/schemas/recruitment.py — JobPosting*, Candidate*, Interview*, analytics response
+backend/schemas/employee.py — employee create/update/response/summary
+backend/schemas/dashboard.py
+backend/schemas/department.py
+backend/schemas/attendance.py
+backend/schemas/leave.py
+backend/schemas/payroll.py
+backend/schemas/performance.py
+Auth / usage notes
+
+All protected endpoints require Authorization: Bearer <access_token> returned by POST /api/auth/login.
+Roles (from core/permissions.py): admin, senior_manager, hr_recruiter, employee. Routes are role-protected.
+Representative API responses (use these as the frontend's fixtures / mock responses)
+
+POST /api/auth/register 201 (UserResponse)
+{
+"id": 1,
+"username": "alice",
+"email": "alice@example.com",
+"role": "hr_recruiter",
+"is_active": true
+}
+
+POST /api/auth/login 200 (TokenResponse)
+{
+"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+"token_type": "bearer"
+}
+
+GET /api/ai/status 200
+{
+"status": "ready",
+"provider": "ollama",
+"url": "http://localhost:11434",
+"model": "tinylama",
+"whisper_model": "whisper",
+"whisper_provider": "faster-whisper",
+"chat_model_available": true,
+"whisper_model_available": true,
+"available_models": ["tinylama","other-model"],
+"message": "Local Ollama AI service operational"
+}
+
+POST /api/ai/resume/screen 200 (ResumeScreenResponse)
+{
+"score": 85.0,
+"summary": "Strong backend engineer with relevant experience.",
+"strengths": ["Python", "SQLAlchemy", "APIs"],
+"weaknesses": ["Frontend experience limited"],
+"recommendations": ["Consider for backend role, technical interview"],
+"resume_path": "uploads/resumes/abcd1234.pdf",
+"candidate_id": 42
+}
+
+POST /api/ai/resume/rank 200 (CandidateRankResponse)
+{
+"ranked": [
+{"name":"Alice","rank":1,"score":95,"reason":"Best fit"},
+{"name":"Bob","rank":2,"score":80,"reason":"Good but less experience"}
+],
+"summary": "Alice recommended for next round"
+}
+
+POST /api/ai/chat/interview 200 (InterviewChatResponse)
+{
+"reply": "Ask about system design for scaling.",
+"follow_up_questions": ["Describe a time you scaled a service","How do you design retries?"]
+}
+
+POST /api/ai/interview/conduct 200
+{
+"transcript": "Candidate answered the questions clearly...",
+"interview_chat": {"reply":"Thanks","follow_up_questions":[]},
+"evaluation": {
+"score": 88.0,
+"summary": "Strong technical fit",
+"recommendation": "advance",
+"next_stage": "interviewed"
+}
+}
+
+POST /api/recruitment/candidates 201 (CandidateResponse)
+{
+"id": 12,
+"job_posting_id": 5,
+"full_name": "Charlie",
+"email": "charlie@example.com",
+"phone": null,
+"resume_path": "uploads/resumes/uuid.pdf",
+"experience_years": 3.5,
+"current_company": "X",
+"current_role": "Engineer",
+"ai_score": 0,
+"ai_summary": null,
+"stage": "applied",
+"applied_date": "2026-06-01",
+"created_at": "2026-06-01T12:00:00Z"
+}
+
+GET /api/recruitment/candidates/{id} 200 (CandidateResponse)
+(same shape as above, with ai_score and ai_summary populated after AI evaluation)
+
+GET /api/employees/{id}/summary 200 (EmployeeSummaryResponse)
+{
+"employee": {
+"id": 3,
+"user_id": 7,
+"employee_code": "E-003",
+"first_name": "Dana",
+"last_name": "Smith",
+"email": "dana@example.com",
+"phone": "1234567890",
+"designation": "Manager",
+"hire_date": "2020-05-01",
+"salary": 85000,
+"department_id": 2,
+"manager_id": null,
+"status": "active",
+"is_active": true,
+"profile_image": null
+},
+"attendance_records": 120,
+"pending_leaves": 1,
+"approved_leaves": 5,
+"latest_payroll": {"id": 9, "payroll_month":"May","payroll_year":2026,"net_salary":7000,"status":"paid"},
+"average_rating": 4.2
+}
+
+GET /api/dashboard/admin 200 (DashboardResponse)
+{
+"role": "admin",
+"stats": {
+"employees": 42,
+"departments": 6,
+"pending_leaves": 3,
+"open_jobs": 4,
+"payroll_records": 120
+}
+}
+
+How I suggest you use this
+
+Use the file links above to inspect the exact request/response Pydantic schemas. Example: ResumeScreenResponse is in backend/schemas/ai.py.
+Seed your frontend API client to call these endpoints and use the example JSON above as mock fixtures while building UI.
+Authorization: add global axios/Fetch wrapper that injects Authorization: Bearer <token>. Use the role in the token payload to conditionally show dashboards.
