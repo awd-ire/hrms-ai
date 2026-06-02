@@ -28,6 +28,12 @@ const LeaveApproval = () => {
     pending();
   }, [pending]);
 
+  const handleReject = (leaveId) => {
+    const rejectionReason = window.prompt("Enter rejection reason:");
+    if (!rejectionReason) return;
+    reject(leaveId, rejectionReason);
+  };
+
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Leave Approvals</h1>
@@ -84,10 +90,7 @@ const LeaveApproval = () => {
                         Approve
                       </Button>
 
-                      <Button
-                        variant="danger"
-                        onClick={() => reject(l.id)}
-                      >
+                      <Button variant="danger" onClick={() => handleReject(l.id)}>
                         Reject
                       </Button>
                     </td>

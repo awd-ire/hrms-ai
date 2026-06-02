@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { performanceApi } from "@/api/performanceApi";
 
 export const usePerformance = () => {
@@ -67,10 +67,6 @@ export const usePerformance = () => {
       handleError(err);
     }
   }, []);
-
-  useEffect(() => {
-    myPerformance();
-  }, [myPerformance]);
 
   return {
     records,

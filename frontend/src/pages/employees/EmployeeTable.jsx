@@ -18,7 +18,11 @@ const EmployeeTable = ({
     },
     { key: "email", label: "Email" },
     { key: "designation", label: "Designation" },
-    { key: "department_id", label: "Department" },
+    {
+      key: "department",
+      label: "Department",
+      render: (row) => row.department?.name || row.department_id,
+    },
     { key: "status", label: "Status" },
     {
       key: "actions",

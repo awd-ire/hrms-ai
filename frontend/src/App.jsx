@@ -14,15 +14,24 @@ const AdminDashboard = React.lazy(() => import("@/pages/dashboard/AdminDashboard
 const ManagerDashboard = React.lazy(() => import("@/pages/dashboard/ManagerDashboard"));
 const HRDashboard = React.lazy(() => import("@/pages/dashboard/HRDashboard"));
 const EmployeeDashboard = React.lazy(() => import("@/pages/dashboard/EmployeeDashboard"));
+const DepartmentManagement = React.lazy(() => import("@/pages/admin/DepartmentManagement"));
+const UserManagement = React.lazy(() => import("@/pages/admin/UserManagement"));
+const ManagerApprovalQueue = React.lazy(() => import("@/pages/manager/ApprovalQueue"));
+const ManagerTeamOverview = React.lazy(() => import("@/pages/manager/TeamOverview"));
+const ManagerTeamAttendance = React.lazy(() => import("@/pages/manager/TeamAttendance"));
+const GoalTracker = React.lazy(() => import("@/pages/performance/GoalTracker"));
+const AttendanceAnalytics = React.lazy(() => import("@/pages/attendance/AttendanceAnalytics"));
 
 // Additional pages referenced by the Sidebar
 const EmployeeDirectory = React.lazy(() => import("@/pages/employees/EmployeeDirectory"));
+const EmployeeDirectoryView = React.lazy(() => import("@/pages/employees/EmployeeDirectoryView"));
 const MyAttendance = React.lazy(() => import("@/pages/attendance/MyAttendance"));
-const LeaveRequestForm = React.lazy(() => import("@/pages/leave/LeaveRequestForm"));
+const MyLeave = React.lazy(() => import("@/pages/leave/MyLeave"));
 const MyPayslips = React.lazy(() => import("@/pages/payroll/MyPayslips"));
+const MyPerformance = React.lazy(() => import("@/pages/performance/MyPerformance"));
 const RecruitmentPipeline = React.lazy(() => import("@/pages/recruitment/RecruitmentPipeline"));
 const AIResumeScreen = React.lazy(() => import("@/pages/ai/AIResumeScreen"));
-const AttendanceAnalytics = React.lazy(() => import("@/pages/attendance/AttendanceAnalytics"));
+const CandidatePortal = React.lazy(() => import("@/pages/public/CandidatePortal"));
 
 /**
  * Error Boundary (simple enterprise-safe fallback)
@@ -85,6 +94,7 @@ const App = () => {
           {/* Public Route */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/careers" element={<CandidatePortal />} />
 
           {/* Protected App Shell Routes */}
           <Route element={<ProtectedRoute />}>
@@ -109,6 +119,46 @@ const App = () => {
                   <RoleRoute
                     allowedRoles={["senior_manager"]}
                     element={<ManagerDashboard />}
+                  />
+                }
+              />
+
+              <Route
+                path="/manager/approvals"
+                element={
+                  <RoleRoute
+                    allowedRoles={["senior_manager"]}
+                    element={<ManagerApprovalQueue />}
+                  />
+                }
+              />
+
+              <Route
+                path="/manager/team"
+                element={
+                  <RoleRoute
+                    allowedRoles={["senior_manager"]}
+                    element={<ManagerTeamOverview />}
+                  />
+                }
+              />
+
+              <Route
+                path="/manager/performance"
+                element={
+                  <RoleRoute
+                    allowedRoles={["senior_manager"]}
+                    element={<GoalTracker />}
+                  />
+                }
+              />
+
+              <Route
+                path="/manager/attendance"
+                element={
+                  <RoleRoute
+                    allowedRoles={["senior_manager"]}
+                    element={<ManagerTeamAttendance />}
                   />
                 }
               />
@@ -150,8 +200,28 @@ const App = () => {
                 path="/directory"
                 element={
                   <RoleRoute
-                    allowedRoles={["admin", "senior_manager", "hr_recruiter", "employee"]}
-                    element={<EmployeeDirectory />}
+                    allowedRoles={["admin", "senior_manager", "hr_recruiter"]}
+                    element={<EmployeeDirectoryView />}
+                  />
+                }
+              />
+
+              <Route
+                path="/admin/departments"
+                element={
+                  <RoleRoute
+                    allowedRoles={["admin"]}
+                    element={<DepartmentManagement />}
+                  />
+                }
+              />
+
+              <Route
+                path="/admin/users"
+                element={
+                  <RoleRoute
+                    allowedRoles={["admin"]}
+                    element={<UserManagement />}
                   />
                 }
               />
@@ -172,7 +242,7 @@ const App = () => {
                 element={
                   <RoleRoute
                     allowedRoles={["employee"]}
-                    element={<LeaveRequestForm />}
+                    element={<MyLeave />}
                   />
                 }
               />
@@ -183,6 +253,16 @@ const App = () => {
                   <RoleRoute
                     allowedRoles={["employee"]}
                     element={<MyPayslips />}
+                  />
+                }
+              />
+
+              <Route
+                path="/employee/performance"
+                element={
+                  <RoleRoute
+                    allowedRoles={["employee"]}
+                    element={<MyPerformance />}
                   />
                 }
               />
@@ -204,6 +284,16 @@ const App = () => {
                   <RoleRoute
                     allowedRoles={["hr_recruiter"]}
                     element={<AIResumeScreen />}
+                  />
+                }
+              />
+
+              <Route
+                path="/hr/candidate-portal"
+                element={
+                  <RoleRoute
+                    allowedRoles={["hr_recruiter"]}
+                    element={<CandidatePortal />}
                   />
                 }
               />

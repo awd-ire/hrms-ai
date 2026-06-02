@@ -45,12 +45,17 @@ const EmployeeDirectory = () => {
   };
 
   const handleSubmit = async (payload) => {
+    let result = null;
+
     if (editorMode === "edit" && selectedEmployee) {
-      await update(selectedEmployee.id, payload);
+      result = await update(selectedEmployee.id, payload);
     } else {
-      await create(payload);
+      result = await create(payload);
     }
-    closeEditor();
+
+    if (result) {
+      closeEditor();
+    }
   };
 
   const handleDelete = async (id) => {

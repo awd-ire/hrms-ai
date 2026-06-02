@@ -18,6 +18,7 @@ const LeaveRequestForm = ({ onSuccess }) => {
   const {
     register,
     handleSubmit,
+    watch,
     reset,
     formState: { errors }
   } = useForm({
@@ -25,12 +26,39 @@ const LeaveRequestForm = ({ onSuccess }) => {
     mode: "onSubmit"
   });
 
+  const startDate = watch("start_date");
+  const endDate = watch("end_date");
+
+  const calculateTotalDays = (start, end) => {
+    if (!start || !end) return null;
+
+    const startTime = new Date(start);
+    const endTime = new Date(end);
+
+    if (Number.isNaN(startTime.getTime()) || Number.isNaN(endTime.getTime())) {
+      return null;
+    }
+
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const diff = Math.floor((endTime - startTime) / msPerDay) + 1;
+    return diff > 0 ? diff : null;
+  };
+
   const onSubmit = async (data) => {
     setLoading(true);
     setError(null);
 
     try {
-      await leaveApi.request(data);
+      const totalDays = calculateTotalDays(data.start_date, data.end_date);
+
+      if (!totalDays) {
+        throw new Error("End date must be on or after start date");
+      }
+
+      await leaveApi.request({
+        ...data,
+        total_days: totalDays
+      });
       reset();
       onSuccess?.();
     } catch (err) {
@@ -69,6 +97,10 @@ const LeaveRequestForm = ({ onSuccess }) => {
           {...register("end_date")}
           className="p-2 border rounded"
         />
+
+        <div className="col-span-2 text-sm text-gray-500">
+          Total days: {calculateTotalDays(startDate, endDate) ?? "Select dates"}
+        </div>
 
         <input
           {...register("reason")}

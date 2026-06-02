@@ -5,6 +5,8 @@ import {
   employeeCreateSchema,
   employeeUpdateSchema,
 } from "@/validation/employeeSchemas";
+import { departmentApi } from "@/api/departmentApi";
+import { usersApi } from "@/api/usersApi";
 import Button from "@/components/common/Button";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -45,6 +47,12 @@ const EmployeeForm = ({
   const isEdit = mode === "edit";
   const schema = isEdit ? employeeUpdateSchema : employeeCreateSchema;
   const [loading, setLoading] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [departmentLoading, setDepartmentLoading] = useState(false);
+  const [userLoading, setUserLoading] = useState(false);
+  const [departmentError, setDepartmentError] = useState(null);
+  const [userError, setUserError] = useState(null);
 
   const {
     register,
@@ -60,6 +68,39 @@ const EmployeeForm = ({
   useEffect(() => {
     reset(normalizeValues(initialValues, mode));
   }, [initialValues, mode, reset]);
+
+  useEffect(() => {
+    const loadDepartments = async () => {
+      setDepartmentLoading(true);
+      setDepartmentError(null);
+
+      try {
+        const res = await departmentApi.getAll();
+        setDepartments(res.data);
+      } catch (err) {
+        setDepartmentError(err?.message || "Failed to load departments");
+      } finally {
+        setDepartmentLoading(false);
+      }
+    };
+
+    const loadUsers = async () => {
+      setUserLoading(true);
+      setUserError(null);
+
+      try {
+        const res = await usersApi.employeeCandidates();
+        setUsers(res.data);
+      } catch (err) {
+        setUserError(err?.message || "Failed to load users");
+      } finally {
+        setUserLoading(false);
+      }
+    };
+
+    loadDepartments();
+    loadUsers();
+  }, []);
 
   const submitHandler = async (data) => {
     setLoading(true);
@@ -102,21 +143,32 @@ const EmployeeForm = ({
 
       <form onSubmit={handleSubmit(submitHandler)} className="grid grid-cols-2 gap-3">
         {!isEdit && (
-          <>
-            <div className="col-span-2 md:col-span-1">
-              <input
-                type="number"
-                {...register("user_id", { setValueAs: numberValue })}
-                placeholder="User ID"
-                className={`w-full ${inputClass}`}
-              />
-              {errors.user_id && (
-                <p className="text-xs text-red-600 mt-1">{errors.user_id.message}</p>
-              )}
-            </div>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Linked User
+            </label>
 
-            <div className="col-span-2 md:col-span-1" />
-          </>
+            <select
+              {...register("user_id", { setValueAs: numberValue })}
+              className={`w-full ${inputClass}`}
+              disabled={userLoading}
+            >
+              <option value="">
+                {userLoading ? "Loading users..." : "Select a user account"}
+              </option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.username} ({user.email})
+                </option>
+              ))}
+            </select>
+            {errors.user_id && (
+              <p className="text-xs text-red-600 mt-1">{errors.user_id.message}</p>
+            )}
+            {userError && (
+              <p className="text-xs text-red-600 mt-1">{userError}</p>
+            )}
+          </div>
         )}
 
         <div>
@@ -208,14 +260,23 @@ const EmployeeForm = ({
         </div>
 
         <div>
-          <input
-            type="number"
+          <select
             {...register("department_id", { setValueAs: numberValue })}
-            placeholder="Department ID"
             className={`w-full ${inputClass}`}
-          />
+            disabled={departmentLoading}
+          >
+            <option value="">{departmentLoading ? "Loading departments..." : "Select Department"}</option>
+            {departments.map((department) => (
+              <option key={department.id} value={department.id}>
+                {department.name}
+              </option>
+            ))}
+          </select>
           {errors.department_id && (
             <p className="text-xs text-red-600 mt-1">{errors.department_id.message}</p>
+          )}
+          {departmentError && (
+            <p className="text-xs text-red-600 mt-1">{departmentError}</p>
           )}
         </div>
 

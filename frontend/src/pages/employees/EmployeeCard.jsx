@@ -27,7 +27,7 @@ const EmployeeCard = ({ employee }) => {
 
       <div className="mt-3 text-xs text-gray-500">
         <p>Code: {employee.employee_code}</p>
-        <p>Department ID: {employee.department_id}</p>
+        <p>Department: {employee.department?.name || `#${employee.department_id}`}</p>
       </div>
     </div>
   );

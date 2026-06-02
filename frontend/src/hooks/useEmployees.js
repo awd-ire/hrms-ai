@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { employeeApi } from "@/api/employeeApi";
 
-export const useEmployees = () => {
+export const useEmployees = (scope = "all") => {
   const [employees, setEmployees] = useState([]);
   const [employee, setEmployee] = useState(null);
 
@@ -17,7 +17,10 @@ export const useEmployees = () => {
     setError(null);
 
     try {
-      const res = await employeeApi.getAll();
+      const res =
+        scope === "team"
+          ? await employeeApi.myTeam()
+          : await employeeApi.getAll();
       setEmployees(res.data);
       return res.data;
     } catch (err) {
@@ -25,7 +28,7 @@ export const useEmployees = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [scope]);
 
   const getById = useCallback(async (id) => {
     setLoading(true);
@@ -52,6 +55,7 @@ export const useEmployees = () => {
       return res.data;
     } catch (err) {
       handleError(err);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -67,6 +71,7 @@ export const useEmployees = () => {
       return res.data;
     } catch (err) {
       handleError(err);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -82,14 +87,16 @@ export const useEmployees = () => {
       return res.data;
     } catch (err) {
       handleError(err);
+      return null;
     } finally {
       setLoading(false);
     }
   }, [getAll]);
 
   useEffect(() => {
+    if (!scope) return;
     getAll();
-  }, [getAll]);
+  }, [getAll, scope]);
 
   return {
     employees,

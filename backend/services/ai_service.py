@@ -270,6 +270,73 @@ IMPORTANT: Return ONLY valid JSON."""
         )
 
     @staticmethod
+    def generate_interview_question(
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        context_text = json.dumps(context, indent=2) if context else "None"
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a professional AI interview conductor. "
+                    "Ask one concise interview question at a time. "
+                    "Respond only with JSON containing question and guidance."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Context:\n{context_text}\n\n"
+                    'Return JSON: {"question": "...", "guidance": "..."}'
+                ),
+            },
+        ]
+
+        return AIService._chat_response(
+            messages,
+            default={
+                "question": "Tell me about yourself and the role you're applying for.",
+                "guidance": "Start with a warm, open-ended question.",
+            },
+        )
+
+    @staticmethod
+    def evaluate_interview_turn(
+        transcript: str,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        context_text = json.dumps(context, indent=2) if context else "None"
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are an interview evaluator. "
+                    "Assess the candidate's answer and decide whether to continue or finish. "
+                    "Return only JSON."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Context:\n{context_text}\n\n"
+                    f"Transcript:\n{transcript}\n\n"
+                    'Return JSON: {"score": 0-100, "summary": "...", "recommendation": "...", "next_stage": "advance|reject|hold", "completed": true|false}'
+                ),
+            },
+        ]
+
+        return AIService._chat_response(
+            messages,
+            default={
+                "score": 0,
+                "summary": "Could not evaluate interview turn",
+                "recommendation": "",
+                "next_stage": "hold",
+                "completed": False,
+            },
+        )
+
+    @staticmethod
     def transcribe_voice(audio_path: str) -> Dict[str, Any]:
         path = Path(audio_path)
         if not path.exists():

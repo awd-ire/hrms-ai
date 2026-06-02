@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { attendanceApi } from "@/api/attendanceApi";
 
 export const useAttendance = () => {
@@ -66,10 +66,6 @@ export const useAttendance = () => {
     } catch (err) {
       handleError(err);
     }
-  }, [myAttendance]);
-
-  useEffect(() => {
-    myAttendance();
   }, [myAttendance]);
 
   return {

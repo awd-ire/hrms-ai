@@ -1,0 +1,1 @@
+import{b as a}from"./index-C-CBRY7q.js";const e={admin:()=>a.get("/dashboard/admin"),hr:()=>a.get("/dashboard/hr"),manager:()=>a.get("/dashboard/manager"),employee:()=>a.get("/dashboard/employee")};export{e as d};

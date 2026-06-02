@@ -15,7 +15,6 @@ const GoalTracker = () => {
     loading,
     error,
     teamPerformance,
-    refresh
   } = usePerformance();
 
   useEffect(() => {
@@ -27,7 +26,7 @@ const GoalTracker = () => {
       <div className="flex justify-between">
         <h2 className="text-lg font-bold">Goal Tracker</h2>
         <button
-          onClick={refresh}
+          onClick={teamPerformance}
           className="text-sm text-blue-500"
         >
           Refresh
@@ -60,20 +59,20 @@ const GoalTracker = () => {
                 records.map((r, i) => (
                   <tr key={i} className="border-b dark:border-gray-700">
                     <td className="p-2">{r.employee_id}</td>
-                    <td className="p-2">{r.score}</td>
+                    <td className="p-2">{r.rating}</td>
                     <td className="p-2">
                       <Badge
                         label={
-                          r.score >= 4
+                          r.rating >= 4
                             ? "Excellent"
-                            : r.score >= 3
+                            : r.rating >= 3
                             ? "Good"
                             : "Needs Improvement"
                         }
                         type={
-                          r.score >= 4
+                          r.rating >= 4
                             ? "success"
-                            : r.score >= 3
+                            : r.rating >= 3
                             ? "warning"
                             : "danger"
                         }

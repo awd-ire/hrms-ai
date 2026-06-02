@@ -15,7 +15,7 @@ export const leaveApi = {
 
   approve: (id) => api.put(`/leave/${id}/approve`),
 
-  reject: (id) => api.put(`/leave/${id}/reject`),
+  reject: (id, payload) => api.put(`/leave/${id}/reject`, payload),
 
   analytics: () => api.get("/leave/analytics")
 };

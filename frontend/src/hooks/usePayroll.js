@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { payrollApi } from "@/api/payrollApi";
 
 export const usePayroll = () => {
@@ -62,10 +62,6 @@ export const usePayroll = () => {
       handleError(err);
     }
   }, []);
-
-  useEffect(() => {
-    myPayroll();
-  }, [myPayroll]);
 
   return {
     records,

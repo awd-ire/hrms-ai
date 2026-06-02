@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { leaveApi } from "@/api/leaveApi";
 
 export const useLeave = () => {
@@ -17,6 +17,21 @@ export const useLeave = () => {
 
     try {
       const res = await leaveApi.myLeaves();
+      setLeaves(res.data);
+      return res.data;
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const pending = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await leaveApi.pending();
       setLeaves(res.data);
       return res.data;
     } catch (err) {
@@ -54,20 +69,20 @@ export const useLeave = () => {
   const approve = useCallback(async (id) => {
     try {
       await leaveApi.approve(id);
-      await myLeaves();
+      await pending();
     } catch (err) {
       handleError(err);
     }
-  }, [myLeaves]);
+  }, [pending]);
 
-  const reject = useCallback(async (id) => {
+  const reject = useCallback(async (id, rejectionReason = "Rejected") => {
     try {
-      await leaveApi.reject(id);
-      await myLeaves();
+      await leaveApi.reject(id, { rejection_reason: rejectionReason });
+      await pending();
     } catch (err) {
       handleError(err);
     }
-  }, [myLeaves]);
+  }, [pending]);
 
   const analyticsData = useCallback(async () => {
     try {
@@ -79,10 +94,6 @@ export const useLeave = () => {
     }
   }, []);
 
-  useEffect(() => {
-    myLeaves();
-  }, [myLeaves]);
-
   return {
     leaves,
     balance,
@@ -90,6 +101,7 @@ export const useLeave = () => {
     loading,
     error,
     myLeaves,
+    pending,
     getBalance,
     requestLeave,
     approve,

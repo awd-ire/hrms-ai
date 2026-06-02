@@ -12,17 +12,24 @@ const navConfig = [
   { label: "HR Dashboard", path: "/hr", roles: ["hr_recruiter"] },
   { label: "My Dashboard", path: "/employee", roles: ["employee"] },
 
-  { label: "Employees", path: "/employees", roles: ["admin", "senior_manager", "hr_recruiter"] },
-  { label: "Directory", path: "/directory", roles: ["admin", "senior_manager", "hr_recruiter", "employee"] },
+  { label: "Manage Employees", path: "/employees", roles: ["admin", "senior_manager", "hr_recruiter"] },
+  { label: "User Management", path: "/admin/users", roles: ["admin"] },
+  { label: "Departments", path: "/admin/departments", roles: ["admin"] },
+  { label: "Employee Directory", path: "/directory", roles: ["admin", "senior_manager", "hr_recruiter"] },
+  { label: "Leave Approvals", path: "/manager/approvals", roles: ["senior_manager"] },
+  { label: "Team Overview", path: "/manager/team", roles: ["senior_manager"] },
+  { label: "Performance", path: "/manager/performance", roles: ["senior_manager"] },
+  { label: "Attendance", path: "/manager/attendance", roles: ["senior_manager"] },
 
   { label: "Attendance", path: "/employee/attendance", roles: ["employee"] },
   { label: "Leave", path: "/employee/leave", roles: ["employee"] },
   { label: "Payroll", path: "/employee/payslips", roles: ["employee"] },
+  { label: "Performance", path: "/employee/performance", roles: ["employee"] },
 
   { label: "Recruitment", path: "/hr/recruitment", roles: ["hr_recruiter"] },
   { label: "AI Resume Screen", path: "/hr/resume-screen", roles: ["hr_recruiter"] },
 
-  { label: "Analytics", path: "/analytics/company", roles: ["admin", "senior_manager"] }
+  { label: "Analytics", path: "/analytics/company", roles: ["admin"] }
 ];
 
 const Sidebar = ({ open, onClose }) => {

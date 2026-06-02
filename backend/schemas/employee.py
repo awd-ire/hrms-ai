@@ -3,6 +3,8 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr
 
+from schemas.department import DepartmentResponse
+
 
 class EmployeeBase(BaseModel):
     employee_code: str
@@ -46,6 +48,7 @@ class EmployeeResponse(EmployeeBase):
     status: str
     is_active: bool
     profile_image: Optional[str] = None
+    department: Optional[DepartmentResponse] = None
 
 
 class EmployeeSummaryResponse(BaseModel):

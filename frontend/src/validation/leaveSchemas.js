@@ -10,6 +10,7 @@ export const leaveRequestSchema = z.object({
   leave_type: z.enum(["sick", "casual", "earned", "unpaid"]),
   start_date: z.string(),
   end_date: z.string(),
+  total_days: z.number().int().positive().optional(),
   reason: z.string().min(3),
   status: z.string().optional()
 });

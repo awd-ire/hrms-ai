@@ -11,7 +11,9 @@ const FileUpload = ({
   accept = ".pdf,.doc,.docx",
   maxSizeMB = 5,
   onUpload,
-  label = "Upload File"
+  label = "Upload File",
+  fieldName = "file",
+  additionalFields = {}
 }) => {
   const fileRef = useRef(null);
 
@@ -57,7 +59,13 @@ const FileUpload = ({
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append(fieldName, file);
+
+      Object.entries(additionalFields).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          formData.append(key, value);
+        }
+      });
 
       await onUpload(formData, (p) => setProgress(p));
 

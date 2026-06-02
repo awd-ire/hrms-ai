@@ -46,3 +46,30 @@ class TranscribeResponse(BaseModel):
     transcript: str
     language: Optional[str] = None
     audio_path: str
+
+
+class LiveInterviewStartRequest(BaseModel):
+    candidate_id: int
+    email: str
+
+
+class LiveInterviewStartResponse(BaseModel):
+    session_id: str
+    candidate_id: int
+    question: str
+    round_number: int
+    transcript: Optional[str] = None
+    conversation: list = Field(default_factory=list)
+
+
+class LiveInterviewTurnResponse(BaseModel):
+    session_id: str
+    candidate_id: int
+    question: Optional[str] = None
+    round_number: int
+    transcript: str
+    reply: str
+    follow_up_questions: List[str] = Field(default_factory=list)
+    evaluation: Optional[dict] = None
+    completed: bool = False
+    conversation: list = Field(default_factory=list)
