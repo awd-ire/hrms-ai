@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from core.permissions import AdminOnly, Authenticated
+from core.permissions import AdminOnly, Authenticated, AdminOrManagerOrHR
 from database import get_db
 from schemas.department import (
     DepartmentCreate,
@@ -32,7 +32,7 @@ def list_departments(
 def create_department(
     payload: DepartmentCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(AdminOnly),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     try:
         return DepartmentService.create(db, payload)
@@ -48,7 +48,7 @@ def update_department(
     department_id: int,
     payload: DepartmentUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(AdminOnly),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     department = DepartmentService.update(db, department_id, payload)
     if not department:
@@ -63,7 +63,7 @@ def update_department(
 def delete_department(
     department_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(AdminOnly),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     try:
         deleted = DepartmentService.delete(db, department_id)

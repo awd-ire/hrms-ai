@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
  * - Shows loading state
  * - Redirects to /login if unauthenticated
  */
-const ProtectedRoute = ({ allowedRoles }) => {
+const ProtectedRoute = ({ allowedRoles, children }) => {
   const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) {
@@ -34,6 +34,10 @@ const ProtectedRoute = ({ allowedRoles }) => {
     }
   }
 
+  // If children are provided (used by RoleRoute), render them directly.
+  if (children) return <>{children}</>;
+
+  // Otherwise render nested routes via Outlet
   return <Outlet />;
 };
 

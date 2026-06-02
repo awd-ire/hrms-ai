@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import get_current_employee
 from core.permissions import (
     AdminOrManager,
+    AdminOrManagerOrHR,
     Authenticated,
     EmployeeOnly,
     ManagerOrAdmin,
@@ -78,7 +79,7 @@ def leave_balance(
 @router.get("/pending", response_model=list[LeaveResponse])
 def pending_leave_requests(
     db: Session = Depends(get_db),
-    current_user: User = Depends(ManagerOrHR),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     if is_hr(current_user):
@@ -95,7 +96,7 @@ def pending_leave_requests(
 def approve_leave(
     leave_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(ManagerOrAdmin),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     try:
@@ -119,7 +120,7 @@ def reject_leave(
     leave_id: int,
     payload: LeaveReject,
     db: Session = Depends(get_db),
-    current_user: User = Depends(ManagerOrAdmin),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     try:
@@ -146,7 +147,7 @@ def reject_leave(
 @router.get("/analytics", response_model=LeaveAnalyticsResponse)
 def leave_analytics(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     if is_admin(current_user):

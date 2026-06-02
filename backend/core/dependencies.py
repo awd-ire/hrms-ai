@@ -61,6 +61,34 @@ def get_current_user(
     return user
 
 
+def get_optional_current_user(
+    token: str | None = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+):
+    """Return the current user when a valid token is provided, or None.
+
+    This allows endpoints to be public while still receiving the authenticated
+    user when available.
+    """
+    if not token:
+        return None
+
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    return user
+
+
 def get_current_employee(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),

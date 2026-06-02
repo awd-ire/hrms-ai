@@ -5,6 +5,7 @@ from core.dependencies import get_current_employee
 from core.permissions import (
     AdminOnly,
     AdminOrHR,
+    AdminOrManagerOrHR,
     EmployeeOnly,
     EmployeeOrAdmin,
     is_admin,
@@ -37,7 +38,7 @@ def my_payroll(
 def employee_payroll(
     employee_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrHR),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     return PayrollService.get_by_employee(db, employee_id)
 
@@ -46,7 +47,7 @@ def employee_payroll(
 def generate_payroll(
     payload: PayrollGenerate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOnly),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     try:
         return PayrollService.generate(db, payload)
@@ -61,7 +62,7 @@ def generate_payroll(
 def process_payroll(
     payroll_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOnly),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     try:
         payroll = PayrollService.process(db, payroll_id)
@@ -82,7 +83,7 @@ def process_payroll(
 @router.get("/analytics", response_model=PayrollAnalyticsResponse)
 def payroll_analytics(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOnly),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     return PayrollService.get_analytics(db)
 

@@ -6,6 +6,7 @@ from core.permissions import (
     AdminOnly,
     AdminOrHR,
     AdminOrManager,
+    AdminOrManagerOrHR,
     Authenticated,
     assert_can_access_employee_record,
     is_admin,
@@ -29,7 +30,7 @@ router = APIRouter(
 @router.get("/", response_model=list[EmployeeResponse])
 def list_employees(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     return EmployeeService.list_all(db)
 
@@ -37,7 +38,7 @@ def list_employees(
 @router.get("/my-team", response_model=list[EmployeeResponse])
 def my_team(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     if is_admin(current_user):
@@ -53,7 +54,7 @@ def my_team(
 def create_employee(
     payload: EmployeeCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOnly),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     try:
         return EmployeeService.create(db, payload)
@@ -126,7 +127,7 @@ def update_employee(
     employee_id: int,
     payload: EmployeeUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrHR),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     try:
         employee = EmployeeService.update(db, employee_id, payload)
@@ -148,7 +149,7 @@ def update_employee(
 def delete_employee(
     employee_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOnly),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     if not EmployeeService.delete(db, employee_id):
         raise HTTPException(

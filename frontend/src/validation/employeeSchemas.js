@@ -6,7 +6,7 @@ import { z } from "zod";
  */
 
 export const employeeCreateSchema = z.object({
-  user_id: z.number().optional(),
+  user_id: z.number(),
   employee_code: z.string().min(1),
   first_name: z.string().min(1),
   last_name: z.string().min(1),

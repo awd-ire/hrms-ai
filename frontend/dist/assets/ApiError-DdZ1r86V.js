@@ -1,0 +1,1 @@
+import{j as t}from"./index-C3kweIsR.js";const d=({error:e,onRetry:s})=>e?t.jsxs("div",{className:"bg-red-50 border border-red-200 text-red-700 p-3 rounded-md",children:[t.jsx("p",{className:"text-sm",children:(e==null?void 0:e.message)||"Something went wrong"}),s&&t.jsx("button",{onClick:s,className:"mt-2 text-sm underline text-red-600",children:"Retry"})]}):null;export{d as A};

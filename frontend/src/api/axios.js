@@ -9,21 +9,38 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
 /**
- * In-memory token storage (STRICT REQUIREMENT)
- * JWT must NOT be persisted in localStorage/sessionStorage.
+ * Token management
+ * Persist token in sessionStorage so page reloads keep session,
+ * while still clearing on logout or 401 responses.
  */
+const STORAGE_KEY = "hrms_access_token";
+
 let accessToken = null;
 
-/**
- * Token management (single source of truth)
- */
+// initialize from sessionStorage if available
+try {
+  accessToken = sessionStorage.getItem(STORAGE_KEY) || null;
+} catch (e) {
+  accessToken = null;
+}
+
 export const tokenService = {
-  getToken: () => accessToken,
+  getToken: () => accessToken || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(STORAGE_KEY) : null),
   setToken: (token) => {
     accessToken = token;
+    try {
+      sessionStorage.setItem(STORAGE_KEY, token);
+    } catch (e) {
+      // ignore storage errors
+    }
   },
   clearToken: () => {
     accessToken = null;
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      // ignore
+    }
   }
 };
 

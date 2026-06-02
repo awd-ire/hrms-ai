@@ -67,6 +67,22 @@ class EmployeeService:
 
     @staticmethod
     def create(db: Session, payload: EmployeeCreate) -> Employee:
+        existing_code = (
+            db.query(Employee)
+            .filter(Employee.employee_code == payload.employee_code)
+            .first()
+        )
+        if existing_code:
+            raise ValueError("Employee code already exists")
+
+        existing_email = (
+            db.query(Employee)
+            .filter(Employee.email == payload.email)
+            .first()
+        )
+        if existing_email:
+            raise ValueError("Employee email already exists")
+
         user = db.query(User).filter(User.id == payload.user_id).first()
         if not user:
             raise ValueError("User not found")
@@ -109,6 +125,46 @@ class EmployeeService:
             return None
 
         updates = payload.model_dump(exclude_unset=True)
+        if "employee_code" in updates:
+            existing_code = (
+                db.query(Employee)
+                .filter(
+                    Employee.employee_code == updates["employee_code"],
+                    Employee.id != employee_id,
+                )
+                .first()
+            )
+            if existing_code:
+                raise ValueError("Employee code already exists")
+
+        if "email" in updates:
+            existing_email = (
+                db.query(Employee)
+                .filter(
+                    Employee.email == updates["email"],
+                    Employee.id != employee_id,
+                )
+                .first()
+            )
+            if existing_email:
+                raise ValueError("Employee email already exists")
+
+        if "user_id" in updates and updates["user_id"] is not None:
+            user = db.query(User).filter(User.id == updates["user_id"]).first()
+            if not user:
+                raise ValueError("User not found")
+
+            existing_user = (
+                db.query(Employee)
+                .filter(
+                    Employee.user_id == updates["user_id"],
+                    Employee.id != employee_id,
+                )
+                .first()
+            )
+            if existing_user:
+                raise ValueError("Employee profile already exists for this user")
+
         if "department_id" in updates:
             department = (
                 db.query(Department)
@@ -118,7 +174,10 @@ class EmployeeService:
             if not department:
                 raise ValueError("Department not found")
 
-        if updates.get("manager_id"):
+        if "manager_id" in updates and updates["manager_id"] is not None:
+            if updates["manager_id"] == employee_id:
+                raise ValueError("Employee cannot manage themselves")
+
             manager = EmployeeService.get_by_id(db, updates["manager_id"])
             if not manager:
                 raise ValueError("Manager not found")

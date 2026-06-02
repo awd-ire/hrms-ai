@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import get_current_employee
 from core.permissions import (
     AdminOrHR,
+    AdminOrManagerOrHR,
     AdminOrManager,
     EmployeeOnly,
     is_admin,
@@ -66,7 +67,7 @@ def my_attendance(
 @router.get("/team", response_model=list[AttendanceResponse])
 def team_attendance(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     if is_admin(current_user):
@@ -81,7 +82,7 @@ def team_attendance(
 @router.get("/analytics", response_model=AttendanceAnalyticsResponse)
 def attendance_analytics(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     if is_admin(current_user):
@@ -98,7 +99,7 @@ def attendance_analytics(
 def employee_attendance(
     employee_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     return AttendanceService.get_by_employee(db, employee_id)
 
@@ -108,7 +109,7 @@ def correct_attendance(
     attendance_id: int,
     payload: AttendanceCorrect,
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrHR),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     record = AttendanceService.correct(db, attendance_id, payload)
     if not record:

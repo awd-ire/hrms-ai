@@ -2,15 +2,25 @@ from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, Optional
 
-from faster_whisper import WhisperModel
+try:
+    from faster_whisper import WhisperModel  # type: ignore
+    _WHISPER_AVAILABLE = True
+except Exception:
+    WhisperModel = None  # type: ignore
+    _WHISPER_AVAILABLE = False
 
 from config import settings
 
 
 class WhisperClient:
-    """Local speech-to-text client backed by faster-whisper."""
+    """Local speech-to-text client backed by faster-whisper when available.
 
-    _models: Dict[str, WhisperModel] = {}
+    The package `faster_whisper` is optional for local development. When it's
+    absent the client will return a clear error payload instead of raising at
+    import time so the API can start normally.
+    """
+
+    _models: Dict[str, "WhisperModel"] = {}
     _lock = Lock()
 
     @staticmethod
@@ -26,7 +36,10 @@ class WhisperClient:
         return settings.WHISPER_COMPUTE_TYPE
 
     @classmethod
-    def _get_model(cls, model: Optional[str] = None) -> WhisperModel:
+    def _get_model(cls, model: Optional[str] = None):
+        if not _WHISPER_AVAILABLE:
+            raise RuntimeError("faster_whisper is not installed")
+
         name = model or cls.model_name()
 
         if name not in cls._models:
@@ -47,6 +60,13 @@ class WhisperClient:
         model: Optional[str] = None,
         language: Optional[str] = None,
     ) -> Dict[str, Any]:
+        if not _WHISPER_AVAILABLE:
+            return {
+                "success": False,
+                "error": "faster_whisper package not available",
+                "model": model or cls.model_name(),
+            }
+
         model = model or cls.model_name()
         path = Path(audio_path)
 
@@ -90,6 +110,8 @@ class WhisperClient:
 
     @classmethod
     def health_check(cls) -> bool:
+        if not _WHISPER_AVAILABLE:
+            return False
         try:
             cls._get_model()
             return True

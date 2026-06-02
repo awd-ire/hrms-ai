@@ -5,10 +5,11 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from core.permissions import (
-    Authenticated,
     HROrAdmin,
+    AdminOrManagerOrHR,
     InterviewerRoles,
 )
+from core.dependencies import get_optional_current_user
 from core.resume_upload import resolve_resume_path
 from database import get_db
 from schemas.recruitment import (
@@ -34,7 +35,7 @@ router = APIRouter(
 @router.get("/jobs", response_model=list[JobPostingResponse])
 def list_job_postings(
     db: Session = Depends(get_db),
-    current_user=Depends(Authenticated),
+    current_user=Depends(get_optional_current_user),
 ):
     return RecruitmentService.list_job_postings(db)
 
@@ -47,7 +48,7 @@ def list_job_postings(
 def create_job_posting(
     payload: JobPostingCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(HROrAdmin),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     return RecruitmentService.create_job_posting(db, payload)
 
@@ -57,7 +58,7 @@ def update_job_posting(
     job_id: int,
     payload: JobPostingUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(HROrAdmin),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     job = RecruitmentService.update_job_posting(db, job_id, payload)
     if not job:
@@ -72,7 +73,7 @@ def update_job_posting(
 def delete_job_posting(
     job_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(HROrAdmin),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     if not RecruitmentService.delete_job_posting(db, job_id):
         raise HTTPException(
@@ -84,7 +85,7 @@ def delete_job_posting(
 @router.get("/candidates", response_model=list[CandidateResponse])
 def list_candidates(
     db: Session = Depends(get_db),
-    current_user=Depends(Authenticated),
+    current_user=Depends(get_optional_current_user),
 ):
     return RecruitmentService.list_candidates(db)
 
@@ -105,7 +106,7 @@ async def create_candidate(
     applied_date: date = Form(...),
     resume: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user=Depends(HROrAdmin),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     content = await resume.read()
 
@@ -145,7 +146,7 @@ async def create_candidate(
 def get_candidate(
     candidate_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(HROrAdmin),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     candidate = RecruitmentService.get_candidate(db, candidate_id)
     if not candidate:
@@ -258,6 +259,6 @@ def update_interview_feedback(
 @router.get("/analytics", response_model=RecruitmentAnalyticsResponse)
 def recruitment_analytics(
     db: Session = Depends(get_db),
-    current_user=Depends(HROrAdmin),
+    current_user=Depends(AdminOrManagerOrHR),
 ):
     return RecruitmentService.get_analytics(db)

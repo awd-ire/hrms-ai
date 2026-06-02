@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import get_current_employee
 from core.permissions import (
     AdminOrHR,
+    AdminOrManagerOrHR,
     AdminOrManager,
     is_admin,
 )
@@ -24,7 +25,7 @@ router = APIRouter(
 @router.get("/company", response_model=CompanyAnalyticsResponse)
 def company_analytics(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     return AnalyticsService.company_analytics(db)
 
@@ -32,7 +33,7 @@ def company_analytics(
 @router.get("/recruitment", response_model=RecruitmentAnalyticsResponse)
 def recruitment_analytics(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrHR),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     return AnalyticsService.recruitment_analytics(db)
 
@@ -40,7 +41,7 @@ def recruitment_analytics(
 @router.get("/attendance", response_model=AttendanceAnalyticsResponse)
 def attendance_analytics(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     if is_admin(current_user):

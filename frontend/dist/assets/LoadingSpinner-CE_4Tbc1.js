@@ -1,0 +1,1 @@
+import{j as r}from"./index-C3kweIsR.js";const n=({size:e=6})=>r.jsx("div",{className:"flex items-center justify-center p-4",children:r.jsx("div",{className:`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 w-${e} h-${e}`})});export{n as L};

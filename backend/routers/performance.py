@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import get_current_employee
 from core.permissions import (
     AdminOrManager,
+    AdminOrManagerOrHR,
     EmployeeOnly,
     ManagerOrAdmin,
     is_admin,
@@ -33,7 +34,7 @@ router = APIRouter(
 def create_review(
     payload: PerformanceReviewCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(ManagerOrAdmin),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     return PerformanceService.create_review(
@@ -55,7 +56,7 @@ def my_performance(
 @router.get("/team", response_model=list[PerformanceReviewResponse])
 def team_performance(
     db: Session = Depends(get_db),
-    current_user: User = Depends(ManagerOrAdmin),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     if is_admin(current_user):
@@ -73,7 +74,7 @@ def update_review(
     review_id: int,
     payload: PerformanceReviewUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(ManagerOrAdmin),
+    current_user: User = Depends(AdminOrManagerOrHR),
 ):
     review = PerformanceService.update_review(db, review_id, payload)
     if not review:
@@ -87,7 +88,7 @@ def update_review(
 @router.get("/analytics", response_model=PerformanceAnalyticsResponse)
 def performance_analytics(
     db: Session = Depends(get_db),
-    current_user: User = Depends(AdminOrManager),
+    current_user: User = Depends(AdminOrManagerOrHR),
     current_employee=Depends(get_current_employee),
 ):
     if is_admin(current_user):
