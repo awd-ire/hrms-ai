@@ -58,10 +58,14 @@ const HRDashboard = () => {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatCard title="Open Jobs" value={data?.recruitment?.open_jobs ?? 0} />
         <StatCard title="Candidates" value={data?.recruitment?.total_candidates ?? 0} />
         <StatCard title="Interviews" value={data?.recruitment?.interviews_scheduled ?? 0} />
+        <StatCard
+          title="Pending Interview Reviews"
+          value={data?.recruitment?.pending_interview_reviews ?? 0}
+        />
         <StatCard title="Pending Leaves" value={data?.pending_leaves ?? 0} />
         <StatCard title="Active Employees" value={data?.employees ?? 0} />
       </div>
@@ -97,6 +101,17 @@ const HRDashboard = () => {
           <div className="mt-1 text-lg font-semibold">Screen candidate resumes</div>
           <p className="mt-2 text-sm text-slate-200">
             Review stored candidates and run AI screening from the dashboard.
+          </p>
+        </Link>
+
+        <Link
+          to="/hr/interview"
+          className="rounded-lg bg-violet-600 px-4 py-4 text-white shadow transition hover:bg-violet-700"
+        >
+          <div className="text-sm uppercase tracking-wide opacity-80">Interview Desk</div>
+          <div className="mt-1 text-lg font-semibold">Schedule and run interviews</div>
+          <p className="mt-2 text-sm text-violet-100">
+            Open the dedicated interview workspace to set dates and process candidate answers.
           </p>
         </Link>
 

@@ -13,7 +13,8 @@ const FileUpload = ({
   onUpload,
   label = "Upload File",
   fieldName = "file",
-  additionalFields = {}
+  additionalFields = {},
+  requireFile = true
 }) => {
   const fileRef = useRef(null);
 
@@ -48,7 +49,7 @@ const FileUpload = ({
   };
 
   const handleUpload = async () => {
-    if (!file) {
+    if (requireFile && !file) {
       setError("Please select a file");
       return;
     }
@@ -59,7 +60,9 @@ const FileUpload = ({
 
     try {
       const formData = new FormData();
-      formData.append(fieldName, file);
+      if (file) {
+        formData.append(fieldName, file);
+      }
 
       Object.entries(additionalFields).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
@@ -108,8 +111,8 @@ const FileUpload = ({
         </div>
       )}
 
-      <Button onClick={handleUpload} disabled={!file || uploading}>
-        {uploading ? "Uploading..." : "Upload"}
+      <Button onClick={handleUpload} disabled={(requireFile && !file) || uploading}>
+        {uploading ? "Uploading..." : requireFile ? "Upload" : "Run Screening"}
       </Button>
     </div>
   );

@@ -9,6 +9,9 @@ const RegisterPage = React.lazy(() => import("@/pages/auth/RegisterPage"));
 const AdminDashboard = React.lazy(() => import("@/pages/dashboard/AdminDashboard"));
 const ManagerDashboard = React.lazy(() => import("@/pages/dashboard/ManagerDashboard"));
 const HRDashboard = React.lazy(() => import("@/pages/dashboard/HRDashboard"));
+const HRRecruitmentPipeline = React.lazy(() => import("@/pages/hr/RecruitmentPipeline"));
+const HRInterviewWorkspace = React.lazy(() => import("@/pages/hr/InterviewWorkspace"));
+const HRCandidatePortal = React.lazy(() => import("@/pages/public/CandidatePortal"));
 const EmployeeDashboard = React.lazy(() => import("@/pages/dashboard/EmployeeDashboard"));
 const DepartmentManagement = React.lazy(() => import("@/pages/admin/DepartmentManagement"));
 const UserManagement = React.lazy(() => import("@/pages/admin/UserManagement"));
@@ -19,6 +22,7 @@ const GoalTracker = React.lazy(() => import("@/pages/performance/GoalTracker"));
 const AttendanceAnalytics = React.lazy(() => import("@/pages/attendance/AttendanceAnalytics"));
 const MyLeave = React.lazy(() => import("@/pages/leave/MyLeave"));
 const MyPerformance = React.lazy(() => import("@/pages/performance/MyPerformance"));
+const AIResumeScreen = React.lazy(() => import("@/pages/ai/AIResumeScreen"));
 
 /**
  * Route roles:
@@ -114,6 +118,34 @@ export const routeConfig = [
   {
     path: "/hr",
     element: <HRDashboard />,
+    protected: true,
+    roles: ["hr_recruiter"]
+  },
+
+  {
+    path: "/hr/resume-screen",
+    element: <AIResumeScreen />,
+    protected: true,
+    roles: ["hr_recruiter"]
+  },
+
+  {
+    path: "/hr/recruitment",
+    element: <HRRecruitmentPipeline />,
+    protected: true,
+    roles: ["hr_recruiter"]
+  },
+
+  {
+    path: "/hr/interview",
+    element: <HRInterviewWorkspace />,
+    protected: true,
+    roles: ["hr_recruiter"]
+  },
+
+  {
+    path: "/hr/candidate-portal",
+    element: <HRCandidatePortal />,
     protected: true,
     roles: ["hr_recruiter"]
   },

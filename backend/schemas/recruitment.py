@@ -71,6 +71,12 @@ class CandidateResponse(BaseModel):
     current_role: Optional[str] = None
     ai_score: float
     ai_summary: Optional[str] = None
+    screening_score: Optional[float] = None
+    screening_summary: Optional[str] = None
+    shortlist_decision: Optional[str] = None
+    interview_score: Optional[float] = None
+    interview_summary: Optional[str] = None
+    final_decision: Optional[str] = None
     stage: str
     applied_date: date
     created_at: Optional[datetime] = None
@@ -89,6 +95,11 @@ class InterviewFeedbackUpdate(BaseModel):
     score: float
     recommendation: str
     status: str = "completed"
+
+
+class InterviewRetryRequest(BaseModel):
+    interview_round: Optional[str] = None
+    scheduled_date: Optional[date] = None
 
 
 class InterviewResponse(BaseModel):

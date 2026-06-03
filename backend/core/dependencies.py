@@ -18,7 +18,7 @@ from core.oauth2 import oauth2_scheme
 
 
 def get_current_user(
-    token: str = Depends(
+    token: str | None = Depends(
         oauth2_scheme
     ),
     db: Session = Depends(get_db)
@@ -28,6 +28,9 @@ def get_current_user(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials"
     )
+
+    if not token:
+        raise credentials_exception
 
     try:
 

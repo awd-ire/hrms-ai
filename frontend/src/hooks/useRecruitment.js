@@ -41,6 +41,16 @@ export const useRecruitment = () => {
     }
   }, []);
 
+  const getCandidateById = useCallback(async (id) => {
+    try {
+      const res = await recruitmentApi.getCandidateById(id);
+      return res.data;
+    } catch (err) {
+      handleError(err);
+      return null;
+    }
+  }, []);
+
   const createJob = useCallback(async (payload) => {
     try {
       await recruitmentApi.createJob(payload);
@@ -91,6 +101,7 @@ export const useRecruitment = () => {
     error,
     getJobs,
     getCandidates,
+    getCandidateById,
     createJob,
     createCandidate,
     updateStage,

@@ -87,6 +87,14 @@ class WhisperClient:
             transcript = "".join(segment.text for segment in segments).strip()
 
             if not transcript:
+                segments, info = whisper_model.transcribe(
+                    str(path),
+                    language=language,
+                    vad_filter=False,
+                )
+                transcript = "".join(segment.text for segment in segments).strip()
+
+            if not transcript:
                 return {
                     "success": False,
                     "error": "Transcription returned empty text",

@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import api, { tokenService } from "@/api/axios";
 
 export const AuthContext = createContext(null);
@@ -12,6 +13,7 @@ export const AuthContext = createContext(null);
  * - store user + token in memory
  */
 export const AuthProvider = ({ children }) => {
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,11 +24,24 @@ export const AuthProvider = ({ children }) => {
 
   const idleTimerRef = React.useRef(null);
   const hiddenAtRef = React.useRef(null);
+  const isPublicRoute = useMemo(
+    () => ["/login", "/register", "/careers"].includes(location.pathname),
+    [location.pathname]
+  );
 
   /**
    * Load current user
    */
   const loadMe = useCallback(async () => {
+    const token = tokenService.getToken();
+
+    if (!token) {
+      setUser(null);
+      setIsAuthenticated(false);
+      setLoading(false);
+      return null;
+    }
+
     try {
       const res = await api.get("/auth/me");
 
@@ -184,8 +199,12 @@ export const AuthProvider = ({ children }) => {
    * Auto restore session on app load
    */
   useEffect(() => {
-    loadMe();
-  }, [loadMe]);
+    if (!isPublicRoute && tokenService.getToken()) {
+      loadMe();
+    } else {
+      setLoading(false);
+    }
+  }, [isPublicRoute, loadMe]);
 
   const value = useMemo(
     () => ({

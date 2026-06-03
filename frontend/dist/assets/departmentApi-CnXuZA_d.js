@@ -1,1 +1,0 @@
-import{b as t}from"./index-C-CBRY7q.js";const r={getAll:()=>t.get("/departments"),create:e=>t.post("/departments",e),update:(e,p)=>t.put(`/departments/${e}`,p),remove:e=>t.delete(`/departments/${e}`)};export{r as d};

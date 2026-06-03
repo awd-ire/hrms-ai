@@ -27,6 +27,18 @@ const ResumeScoreCard = ({ data }) => {
         />
       </div>
 
+      <div className="flex flex-wrap gap-2 text-xs">
+        {data.shortlist_decision && (
+          <Badge
+            label={data.shortlist_decision}
+            type={data.shortlist_decision === "shortlisted" ? "success" : "danger"}
+          />
+        )}
+        {data.candidate_stage && (
+          <Badge label={data.candidate_stage} type="warning" />
+        )}
+      </div>
+
       <p className="text-sm text-gray-600">{data.summary}</p>
 
       <div className="grid grid-cols-2 gap-3 text-xs">

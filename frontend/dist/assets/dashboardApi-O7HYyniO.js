@@ -1,0 +1,1 @@
+import{b as a}from"./index-By0l6TuT.js";const e={admin:()=>a.get("/dashboard/admin"),hr:()=>a.get("/dashboard/hr"),manager:()=>a.get("/dashboard/manager"),employee:()=>a.get("/dashboard/employee")};export{e as d};

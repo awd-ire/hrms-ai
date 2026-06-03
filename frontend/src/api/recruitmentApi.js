@@ -31,5 +31,8 @@ export const recruitmentApi = {
   interviewFeedback: (id, payload) =>
     api.put(`/recruitment/interviews/${id}/feedback`, payload),
 
+  retryInterview: (candidateId, payload = {}) =>
+    api.post(`/recruitment/candidates/${candidateId}/interview/retry`, payload),
+
   analytics: () => api.get("/recruitment/analytics")
 };

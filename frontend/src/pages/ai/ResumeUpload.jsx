@@ -14,6 +14,8 @@ const ResumeUpload = ({
   onJobDescriptionChange,
   onUpload,
 }) => {
+  const useStoredCandidate = Boolean(selectedCandidateId);
+
   return (
     <div className="space-y-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
       <div className="space-y-1">
@@ -38,7 +40,11 @@ const ResumeUpload = ({
             {candidates.map((candidate) => (
               <option key={candidate.id} value={candidate.id}>
                 {candidate.full_name}
-                {candidate.ai_score !== undefined ? ` - AI ${candidate.ai_score}` : ""}
+                {candidate.screening_score !== undefined && candidate.screening_score !== null
+                  ? ` - Screening ${candidate.screening_score}`
+                  : candidate.ai_score !== undefined
+                  ? ` - AI ${candidate.ai_score}`
+                  : ""}
               </option>
             ))}
           </select>
@@ -60,10 +66,11 @@ const ResumeUpload = ({
       </div>
 
       <FileUpload
-        label="Upload Candidate Resume"
+        label={useStoredCandidate ? "Screen Stored Candidate" : "Upload Candidate Resume"}
         accept=".pdf,.doc,.docx"
         maxSizeMB={5}
         fieldName="resume"
+        requireFile={!useStoredCandidate}
         additionalFields={{
           candidate_id: selectedCandidateId || undefined,
           job_description: jobDescription || undefined,

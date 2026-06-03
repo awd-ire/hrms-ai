@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
@@ -6,6 +7,7 @@ from sqlalchemy.orm import Session
 from core.permissions import Authenticated, HROnly, HROrManager
 from core.voice_upload import save_audio_file
 from database import get_db
+from models.recruitment import Interview
 from schemas.ai import (
     CandidateRankRequest,
     CandidateRankResponse,
@@ -17,7 +19,7 @@ from schemas.ai import (
 )
 from services.ai_service import AIService
 from services.recruitment_service import RecruitmentService
-from schemas.recruitment import CandidateStageUpdate
+from schemas.recruitment import InterviewCreate, InterviewFeedbackUpdate
 
 router = APIRouter(
     prefix="/api/ai",
@@ -43,14 +45,12 @@ def ai_status(
 
 @router.post("/resume/screen", response_model=ResumeScreenResponse)
 async def screen_resume(
-    resume: UploadFile = File(...),
+    resume: Optional[UploadFile] = File(default=None),
     job_description: Optional[str] = Form(default=None),
     candidate_id: Optional[int] = Form(default=None),
     db: Session = Depends(get_db),
     current_user=Depends(HROnly),
 ):
-    content = await resume.read()
-
     try:
         if candidate_id is not None:
             candidate = RecruitmentService.get_candidate(db, candidate_id)
@@ -64,6 +64,13 @@ async def screen_resume(
                 job_description,
             )
         else:
+            if resume is None:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Resume file is required when no candidate is selected",
+                )
+
+            content = await resume.read()
             result = AIService.screen_resume_file(
                 content,
                 resume.filename or "resume.pdf",
@@ -77,14 +84,21 @@ async def screen_resume(
 
     _raise_ai_error(result)
 
+    shortlist_decision = "shortlisted" if result.get("score", 0) >= RecruitmentService.SHORTLIST_THRESHOLD else "rejected"
+
     if candidate_id is not None:
-        RecruitmentService.update_candidate_ai_results(
+        RecruitmentService.update_candidate_screening_result(
             db,
             candidate_id,
             result.get("score", 0),
             result.get("summary", ""),
+            shortlist_decision,
         )
         result["candidate_id"] = candidate_id
+        result["shortlist_decision"] = shortlist_decision
+        result["candidate_stage"] = "shortlisted" if shortlist_decision == "shortlisted" else "rejected"
+    else:
+        result["shortlist_decision"] = shortlist_decision
 
     return ResumeScreenResponse(**result)
 
@@ -227,18 +241,35 @@ async def conduct_interview(
     evaluation = AIService.evaluate_interview(transcript, resume_analysis.get("summary") if isinstance(resume_analysis, dict) else None)
     _raise_ai_error(evaluation)
 
-    # persist AI results
-    RecruitmentService.update_candidate_ai_results(db, candidate_id, evaluation.get("score", 0), evaluation.get("summary", ""))
+    interview = (
+        db.query(Interview)
+        .filter(Interview.candidate_id == candidate_id)
+        .order_by(Interview.created_at.desc(), Interview.id.desc())
+        .first()
+    )
 
-    # update candidate stage if suggested
-    next_stage = evaluation.get("next_stage")
-    if next_stage:
-        try:
-            payload = CandidateStageUpdate(stage=next_stage)
-            RecruitmentService.update_candidate_stage(db, candidate_id, payload)
-        except Exception:
-            # ignore stage update failures but include in response
-            pass
+    if not interview:
+        interview = RecruitmentService.create_interview(
+            db,
+            InterviewCreate(
+                candidate_id=candidate_id,
+                interviewer_id=None,
+                interview_round="ai-conducted",
+                scheduled_date=date.today(),
+                status="completed",
+            ),
+        )
+
+    RecruitmentService.update_interview_feedback(
+        db,
+        interview.id,
+        InterviewFeedbackUpdate(
+            feedback=evaluation.get("summary", ""),
+            score=evaluation.get("score", 0),
+            recommendation=evaluation.get("next_stage", "hold"),
+            status="completed",
+        ),
+    )
 
     return {
         "transcript": transcript,

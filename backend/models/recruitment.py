@@ -142,6 +142,36 @@ class Candidate(Base):
         nullable=True
     )
 
+    screening_score = Column(
+        Float,
+        nullable=True
+    )
+
+    screening_summary = Column(
+        Text,
+        nullable=True
+    )
+
+    shortlist_decision = Column(
+        String(50),
+        nullable=True
+    )
+
+    interview_score = Column(
+        Float,
+        nullable=True
+    )
+
+    interview_summary = Column(
+        Text,
+        nullable=True
+    )
+
+    final_decision = Column(
+        String(50),
+        nullable=True
+    )
+
     stage = Column(
         String(50),
         default="applied"

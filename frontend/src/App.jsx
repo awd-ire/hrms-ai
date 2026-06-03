@@ -31,6 +31,7 @@ const MyPayslips = React.lazy(() => import("@/pages/payroll/MyPayslips"));
 const MyPerformance = React.lazy(() => import("@/pages/performance/MyPerformance"));
 const RecruitmentPipeline = React.lazy(() => import("@/pages/recruitment/RecruitmentPipeline"));
 const AIResumeScreen = React.lazy(() => import("@/pages/ai/AIResumeScreen"));
+const InterviewWorkspace = React.lazy(() => import("@/pages/hr/InterviewWorkspace"));
 const CandidatePortal = React.lazy(() => import("@/pages/public/CandidatePortal"));
 
 /**
@@ -284,6 +285,16 @@ const App = () => {
                   <RoleRoute
                     allowedRoles={["hr_recruiter"]}
                     element={<AIResumeScreen />}
+                  />
+                }
+              />
+
+              <Route
+                path="/hr/interview"
+                element={
+                  <RoleRoute
+                    allowedRoles={["hr_recruiter"]}
+                    element={<InterviewWorkspace />}
                   />
                 }
               />

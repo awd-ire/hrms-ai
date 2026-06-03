@@ -27,6 +27,7 @@ const navConfig = [
   { label: "Performance", path: "/employee/performance", roles: ["employee"] },
 
   { label: "Recruitment", path: "/hr/recruitment", roles: ["hr_recruiter"] },
+  { label: "Interview Workspace", path: "/hr/interview", roles: ["hr_recruiter"] },
   { label: "AI Resume Screen", path: "/hr/resume-screen", roles: ["hr_recruiter"] },
 
   { label: "Analytics", path: "/analytics/company", roles: ["admin"] }

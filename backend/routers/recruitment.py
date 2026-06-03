@@ -18,6 +18,7 @@ from schemas.recruitment import (
     CandidateStageUpdate,
     InterviewCreate,
     InterviewFeedbackUpdate,
+    InterviewRetryRequest,
     InterviewResponse,
     JobPostingCreate,
     JobPostingResponse,
@@ -252,6 +253,29 @@ def update_interview_feedback(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Interview not found",
+        )
+    return interview
+
+
+@router.post(
+    "/candidates/{candidate_id}/interview/retry",
+    response_model=InterviewResponse,
+)
+def retry_candidate_interview(
+    candidate_id: int,
+    payload: InterviewRetryRequest | None = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(HROrAdmin),
+):
+    interview = RecruitmentService.reopen_candidate_interview(
+        db,
+        candidate_id,
+        payload,
+    )
+    if not interview:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Candidate not found",
         )
     return interview
 

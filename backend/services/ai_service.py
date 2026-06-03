@@ -1,4 +1,5 @@
 import json
+import json
 import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional
@@ -11,6 +12,203 @@ from core.whisper_client import WhisperClient
 
 class AIService:
     """Service layer for AI inference operations"""
+
+    @staticmethod
+    def _coerce_text(value: Any) -> str:
+        if value is None:
+            return ""
+
+        if isinstance(value, str):
+            return value
+
+        if isinstance(value, list):
+            parts = [AIService._coerce_text(item).strip() for item in value]
+            return " ".join(part for part in parts if part)
+
+        if isinstance(value, dict):
+            for key in ("message", "content", "text", "reply", "answer", "response"):
+                nested = value.get(key)
+                if isinstance(nested, str) and nested.strip():
+                    return nested
+            return json.dumps(value, ensure_ascii=False)
+
+        return str(value)
+
+    @staticmethod
+    def _normalize_chat_payload(payload: Dict[str, Any], *, default_reply: str) -> Dict[str, Any]:
+        reply = AIService._coerce_text(payload.get("reply", default_reply)).strip() or default_reply
+        follow_up_questions = payload.get("follow_up_questions", [])
+        if not isinstance(follow_up_questions, list):
+            follow_up_questions = [follow_up_questions]
+
+        normalized_follow_ups = []
+        for item in follow_up_questions:
+            text = AIService._coerce_text(item).strip()
+            if text:
+                normalized_follow_ups.append(text)
+
+        normalized = dict(payload)
+        normalized["reply"] = reply
+        normalized["follow_up_questions"] = normalized_follow_ups
+        return normalized
+
+    @staticmethod
+    def _fallback_interview_questions(context: Optional[Dict[str, Any]] = None, total_questions: int = 5) -> List[Dict[str, str]]:
+        job = (context or {}).get("job_posting", {}) if context else {}
+        title = str(job.get("title", "")).lower()
+        requirements = str(job.get("requirements", "")).lower()
+        role_hint = f"{title} {requirements}".strip()
+
+        if any(keyword in role_hint for keyword in ["developer", "engineer", "software", "backend", "frontend", "full stack", "full-stack"]):
+            base_questions = [
+                {"question": "Tell me about the most recent system or feature you built.", "guidance": "Focus on scope, your role, and the outcome."},
+                {"question": "How do you approach debugging a production issue?", "guidance": "Look for structured thinking and communication."},
+                {"question": "Describe how you design an API or service for scalability.", "guidance": "Assess architecture and trade-offs."},
+                {"question": "What is your experience with databases and data modeling?", "guidance": "Check practical depth."},
+                {"question": "Tell me about a difficult technical decision you had to make.", "guidance": "Look for reasoning and impact."},
+            ]
+        elif any(keyword in role_hint for keyword in ["hr", "recruit", "talent", "people"]):
+            base_questions = [
+                {"question": "How do you prioritize candidates when multiple roles are open?", "guidance": "Assess process discipline and stakeholder management."},
+                {"question": "Describe your experience coordinating interviews with hiring managers.", "guidance": "Look for scheduling and communication skills."},
+                {"question": "How do you handle candidate rejection professionally?", "guidance": "Check empathy and professionalism."},
+                {"question": "What tools or workflows do you use to track recruitment pipelines?", "guidance": "Assess operational maturity."},
+                {"question": "Tell me about a time you improved a recruitment process.", "guidance": "Look for measurable impact."},
+            ]
+        elif any(keyword in role_hint for keyword in ["data", "analyst", "analytics", "bi"]):
+            base_questions = [
+                {"question": "Which data tools and reporting workflows do you use most often?", "guidance": "Assess practical tooling depth."},
+                {"question": "How do you validate that your analysis is accurate?", "guidance": "Look for methodology and quality checks."},
+                {"question": "Tell me about a report or dashboard you created end-to-end.", "guidance": "Check ownership and impact."},
+                {"question": "How do you explain insights to non-technical stakeholders?", "guidance": "Assess communication and clarity."},
+                {"question": "Describe a time your analysis changed a business decision.", "guidance": "Look for business impact."},
+            ]
+        else:
+            base_questions = [
+                {"question": "Tell me about yourself and what attracted you to this role.", "guidance": "Start broad and role-focused."},
+                {"question": "Which part of your experience is most relevant to this position?", "guidance": "Connect background to the job."},
+                {"question": "Describe a challenge you solved recently and how you approached it.", "guidance": "Assess problem solving."},
+                {"question": "How do you learn a new tool, process, or domain quickly?", "guidance": "Look for adaptability."},
+                {"question": "What do you want to achieve in your next role?", "guidance": "Evaluate motivation and alignment."},
+            ]
+
+        questions: List[Dict[str, str]] = []
+        for item in base_questions[: max(1, total_questions)]:
+            questions.append(
+                {
+                    "question": item["question"],
+                    "guidance": item["guidance"],
+                }
+            )
+
+        return questions
+
+    @staticmethod
+    def generate_interview_question_bank(
+        context: Optional[Dict[str, Any]] = None,
+        total_questions: int = 5,
+    ) -> Dict[str, Any]:
+        context_text = json.dumps(context, indent=2) if context else "None"
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a professional HR interviewer. "
+                    "Create a short interview question bank tailored to the candidate role. "
+                    "Return only JSON."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Context:\n{context_text}\n\n"
+                    f"Create exactly {total_questions} concise interview questions in interview order. "
+                    "The questions must be based on the candidate's applied job role, job description, requirements, and resume context if available. "
+                    'Return JSON in the format: {"questions":[{"question":"...","guidance":"..."}, ...]}'
+                ),
+            },
+        ]
+
+        response = OllamaClient.chat(messages, stream=False, json_format=True)
+        if response.get("success"):
+            parsed = AIService._parse_json_response(
+                response.get("response", ""),
+                default={"questions": []},
+            )
+            questions = parsed.get("questions")
+            if isinstance(questions, list) and questions:
+                normalized = []
+                for item in questions[: max(1, total_questions)]:
+                    if isinstance(item, dict) and item.get("question"):
+                        normalized.append(
+                            {
+                                "question": str(item.get("question")),
+                                "guidance": str(item.get("guidance", "")),
+                            }
+                        )
+
+                if normalized:
+                    return {"questions": normalized}
+
+        return {"questions": AIService._fallback_interview_questions(context, total_questions)}
+
+    @staticmethod
+    def evaluate_interview_session(
+        questions: List[Dict[str, Any]],
+        answers: List[str],
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        context_text = json.dumps(context, indent=2) if context else "None"
+        qa_pairs = []
+        for idx, question in enumerate(questions):
+            answer = answers[idx] if idx < len(answers) else ""
+            qa_pairs.append(
+                {
+                    "question": question.get("question", ""),
+                    "guidance": question.get("guidance", ""),
+                    "answer": answer,
+                }
+            )
+
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are an objective HR interviewer scoring a completed interview. "
+                    "Evaluate the full interview session using the role context, questions, and answers. "
+                    "Return only JSON."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Context:\n{context_text}\n\n"
+                    f"Interview Q&A:\n{json.dumps(qa_pairs, indent=2)}\n\n"
+                    'Return JSON: {"score": 0-100, "summary": "...", "recommendation": "...", "next_stage": "advance|reject|hold"}'
+                ),
+            },
+        ]
+
+        response = OllamaClient.chat(messages, stream=False, json_format=True)
+        if response.get("success"):
+            parsed = AIService._parse_json_response(
+                response.get("response", ""),
+                default={
+                    "score": 0,
+                    "summary": "Could not parse interview evaluation",
+                    "recommendation": "",
+                    "next_stage": "hold",
+                },
+            )
+            return parsed
+
+        return {
+            "score": 0,
+            "summary": f"Evaluation unavailable: {response.get('error')}",
+            "recommendation": "",
+            "next_stage": "hold",
+            "error": response.get("error"),
+        }
     
     @staticmethod
     def get_status(db: Session) -> Dict[str, Any]:
@@ -261,13 +459,14 @@ IMPORTANT: Return ONLY valid JSON."""
             },
         ]
 
-        return AIService._chat_response(
+        result = AIService._chat_response(
             messages,
             default={
                 "reply": "Could not generate interview chat response",
                 "follow_up_questions": [],
             },
         )
+        return AIService._normalize_chat_payload(result, default_reply="Could not generate interview chat response")
 
     @staticmethod
     def generate_interview_question(

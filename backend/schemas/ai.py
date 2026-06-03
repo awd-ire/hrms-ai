@@ -11,6 +11,8 @@ class ResumeScreenResponse(BaseModel):
     recommendations: List[str] = Field(default_factory=list)
     resume_path: str
     candidate_id: Optional[int] = None
+    shortlist_decision: Optional[str] = None
+    candidate_stage: Optional[str] = None
 
 
 class CandidateRankItem(BaseModel):
@@ -58,6 +60,7 @@ class LiveInterviewStartResponse(BaseModel):
     candidate_id: int
     question: str
     round_number: int
+    total_questions: int
     transcript: Optional[str] = None
     conversation: list = Field(default_factory=list)
 
@@ -67,6 +70,7 @@ class LiveInterviewTurnResponse(BaseModel):
     candidate_id: int
     question: Optional[str] = None
     round_number: int
+    total_questions: int
     transcript: str
     reply: str
     follow_up_questions: List[str] = Field(default_factory=list)

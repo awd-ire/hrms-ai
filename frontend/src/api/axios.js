@@ -63,9 +63,18 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = tokenService.getToken();
+    const isFormData =
+      typeof FormData !== "undefined" && config.data instanceof FormData;
+    const requestPath = `${config.baseURL || ""}${config.url || ""}`;
+    const isPublicApi = requestPath.includes("/public/");
 
-    if (token) {
+    if (token && !isPublicApi) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (isFormData) {
+      delete config.headers["Content-Type"];
+      delete config.headers["content-type"];
     }
 
     config.headers.Accept = "application/json";
