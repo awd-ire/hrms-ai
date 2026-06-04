@@ -1,1 +1,0 @@
-import{b as e}from"./index-By0l6TuT.js";const p={createReview:r=>e.post("/performance/review",r),myPerformance:()=>e.get("/performance/my"),teamPerformance:()=>e.get("/performance/team"),update:(r,a)=>e.put(`/performance/${r}`,a),analytics:()=>e.get("/performance/analytics")};export{p};

@@ -1,1 +1,0 @@
-import{j as s}from"./index-By0l6TuT.js";const n=({label:e,type:t="default"})=>{const r={success:"bg-green-100 text-green-700",warning:"bg-yellow-100 text-yellow-700",danger:"bg-red-100 text-red-700",info:"bg-blue-100 text-blue-700",default:"bg-gray-200 text-gray-700"};return s.jsx("span",{className:`px-2 py-1 text-xs rounded-full ${r[t]}`,children:e})};export{n as B};

@@ -79,33 +79,35 @@ class WhisperClient:
 
         try:
             whisper_model = cls._get_model(model)
-            segments, info = whisper_model.transcribe(
-                str(path),
-                language=language,
-                vad_filter=True,
-            )
-            transcript = "".join(segment.text for segment in segments).strip()
+            attempts = [
+                {"language": language, "vad_filter": True},
+                {"language": language, "vad_filter": False},
+            ]
 
-            if not transcript:
+            if language is None:
+                attempts.append({"language": "en", "vad_filter": False})
+
+            last_info = None
+            for attempt in attempts:
                 segments, info = whisper_model.transcribe(
                     str(path),
-                    language=language,
-                    vad_filter=False,
+                    language=attempt["language"],
+                    vad_filter=attempt["vad_filter"],
                 )
+                last_info = info
                 transcript = "".join(segment.text for segment in segments).strip()
-
-            if not transcript:
-                return {
-                    "success": False,
-                    "error": "Transcription returned empty text",
-                    "language": info.language,
-                    "model": model,
-                }
+                if transcript:
+                    return {
+                        "success": True,
+                        "transcript": transcript,
+                        "language": info.language,
+                        "model": model,
+                    }
 
             return {
-                "success": True,
-                "transcript": transcript,
-                "language": info.language,
+                "success": False,
+                "error": "Transcription returned empty text",
+                "language": getattr(last_info, "language", None),
                 "model": model,
             }
 

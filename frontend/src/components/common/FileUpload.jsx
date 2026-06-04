@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Button from "@/components/common/Button";
 import ApiError from "@/components/common/ApiError";
 
@@ -14,7 +14,9 @@ const FileUpload = ({
   label = "Upload File",
   fieldName = "file",
   additionalFields = {},
-  requireFile = true
+  requireFile = true,
+  hideInput = false,
+  helperText = ""
 }) => {
   const fileRef = useRef(null);
 
@@ -22,6 +24,16 @@ const FileUpload = ({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (hideInput) {
+      setFile(null);
+      setError(null);
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+    }
+  }, [hideInput]);
 
   const validateFile = (f) => {
     if (!f) return "No file selected";
@@ -86,15 +98,23 @@ const FileUpload = ({
     <div className="space-y-3">
       <label className="block font-medium">{label}</label>
 
-      <input
-        ref={fileRef}
-        type="file"
-        accept={accept}
-        onChange={handleFileChange}
-        className="w-full border p-2 rounded"
-      />
+      {!hideInput && (
+        <input
+          ref={fileRef}
+          type="file"
+          accept={accept}
+          onChange={handleFileChange}
+          className="w-full border p-2 rounded"
+        />
+      )}
 
-      {file && (
+      {helperText && (
+        <p className="text-sm text-gray-500">
+          {helperText}
+        </p>
+      )}
+
+      {!hideInput && file && (
         <p className="text-sm text-gray-600">
           Selected: {file.name}
         </p>

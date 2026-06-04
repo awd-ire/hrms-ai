@@ -1,11 +1,13 @@
 from datetime import date
 from uuid import uuid4
 from typing import Optional
+import logging
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from core.dependencies import get_optional_current_user
+from core.audit_logger import log_ai_interview_event
 from core.voice_upload import save_audio_file
 from database import get_db
 from models.recruitment import Interview
@@ -29,6 +31,8 @@ router = APIRouter(
     prefix="/api/public",
     tags=["Public Candidate Portal"],
 )
+
+logger = logging.getLogger(__name__)
 
 LIVE_INTERVIEW_SESSIONS: dict[str, dict] = {}
 
@@ -275,6 +279,7 @@ async def conduct_public_interview(
         interview.id,
         InterviewFeedbackUpdate(
             feedback=evaluation.get("summary", ""),
+            transcript=transcript,
             score=evaluation.get("score", 0),
             recommendation=evaluation.get("next_stage", "hold"),
             status="completed",
@@ -312,11 +317,11 @@ def start_live_interview(
     )
     questions = question_bank.get("questions") or []
     if not questions:
-        questions = AIService._fallback_interview_questions(context, 5)
+        questions = AIService._fallback_interview_questions(context, AIService.INTERVIEW_QUESTION_COUNT)
     else:
-        fallback_questions = AIService._fallback_interview_questions(context, 5)
+        fallback_questions = AIService._fallback_interview_questions(context, AIService.INTERVIEW_QUESTION_COUNT)
         normalized_questions = []
-        for index in range(5):
+        for index in range(min(len(questions), AIService.INTERVIEW_QUESTION_COUNT)):
             model_question = questions[index] if index < len(questions) and isinstance(questions[index], dict) else {}
             fallback_question = fallback_questions[index] if index < len(fallback_questions) else {}
             normalized_questions.append(
@@ -336,7 +341,7 @@ def start_live_interview(
         questions = normalized_questions
 
     first_question = questions[0] if questions else {"question": "Tell me about yourself.", "guidance": ""}
-    total_questions = 5
+    total_questions = len(questions) if questions else 1
 
     LIVE_INTERVIEW_SESSIONS[session_id] = {
         "candidate_id": candidate.id,
@@ -351,6 +356,23 @@ def start_live_interview(
         ],
         "context": context,
     }
+
+    log_ai_interview_event(
+        "AI_INTERVIEW_START",
+        session_id=session_id,
+        candidate_id=candidate.id,
+        email=candidate.email,
+        total_questions=total_questions,
+        source="public_live_interview_start",
+    )
+
+    logger.info(
+        "Live interview started session_id=%s candidate_id=%s total_questions=%s first_question=%s",
+        session_id,
+        candidate.id,
+        total_questions,
+        first_question.get("question", ""),
+    )
 
     return LiveInterviewStartResponse(
         session_id=session_id,
@@ -376,6 +398,12 @@ async def continue_live_interview(
     _check_candidate_access(candidate, email)
     interview = _ensure_interview_ready(candidate, db)
     if not session or session.get("candidate_id") != candidate_id:
+        logger.warning(
+            "Live interview session missing or mismatched session_id=%s candidate_id=%s has_session=%s",
+            session_id,
+            candidate_id,
+            bool(session),
+        )
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interview session not found")
 
     content = await audio.read()
@@ -393,6 +421,39 @@ async def continue_live_interview(
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
 
     transcript = transcript_result.get("transcript", "")
+    log_ai_interview_event(
+        "AI_INTERVIEW_TRANSCRIPT",
+        session_id=session_id,
+        candidate_id=candidate_id,
+        transcript=transcript,
+        transcript_chars=len(transcript),
+        question_index=session.get("question_index"),
+        round_number=session.get("round_number"),
+    )
+    if transcript:
+        interview.transcript = (
+            f"{interview.transcript}\n\n{transcript}" if interview.transcript else transcript
+        )
+        db.commit()
+        db.refresh(interview)
+        log_ai_interview_event(
+            "AI_INTERVIEW_TRANSCRIPT_SAVED",
+            session_id=session_id,
+            candidate_id=candidate_id,
+            interview_id=interview.id,
+            transcript_chars=len(interview.transcript or ""),
+        )
+
+    logger.info(
+        "Live interview turn received session_id=%s candidate_id=%s audio_path=%s transcript_chars=%s pre_question_index=%s pre_round_number=%s total_questions=%s",
+        session_id,
+        candidate_id,
+        audio_path,
+        len(transcript),
+        session.get("question_index"),
+        session.get("round_number"),
+        len(session.get("questions", [])),
+    )
     session["answers"].append(transcript)
     session["conversation"].append({"role": "candidate", "content": transcript})
     session["question_index"] += 1
@@ -400,6 +461,15 @@ async def continue_live_interview(
 
     questions = session.get("questions", [])
     completed = session["question_index"] >= len(questions) or session["round_number"] > 5
+    logger.info(
+        "Live interview turn state session_id=%s candidate_id=%s question_index=%s round_number=%s total_questions=%s completed=%s",
+        session_id,
+        candidate_id,
+        session["question_index"],
+        session["round_number"],
+        len(questions),
+        completed,
+    )
     interview_chat = AIService.interview_chat(
         transcript,
         context={
@@ -431,22 +501,45 @@ async def continue_live_interview(
 
         next_question = None
         session["completed"] = True
+        logger.info(
+            "Live interview completed session_id=%s candidate_id=%s question_count=%s answer_count=%s",
+            session_id,
+            candidate_id,
+            len(questions),
+            len(session["answers"]),
+        )
 
         RecruitmentService.update_interview_feedback(
             db,
             interview.id,
             InterviewFeedbackUpdate(
                 feedback=evaluation.get("summary", ""),
+                transcript="\n\n".join(session["answers"]),
                 score=evaluation.get("score", 0),
                 recommendation="pending_hr_review",
                 status="completed",
             ),
+        )
+        log_ai_interview_event(
+            "AI_INTERVIEW_COMPLETED",
+            session_id=session_id,
+            candidate_id=candidate_id,
+            interview_id=interview.id,
+            transcript_chars=len("\n\n".join(session["answers"])),
+            answer_count=len(session["answers"]),
         )
     else:
         evaluation = None
         next_question_payload = questions[session["question_index"]]
         next_question = next_question_payload.get("question", "")
         session["conversation"].append({"role": "assistant", "content": next_question})
+        logger.info(
+            "Live interview next question session_id=%s candidate_id=%s next_question_index=%s next_question=%s",
+            session_id,
+            candidate_id,
+            session["question_index"],
+            next_question,
+        )
 
     return LiveInterviewTurnResponse(
         session_id=session_id,

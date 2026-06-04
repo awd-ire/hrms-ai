@@ -133,7 +133,20 @@ class RecruitmentService:
         if not candidate:
             return None
 
-        candidate.stage = payload.stage
+        next_stage = payload.stage
+        current_stage = candidate.stage
+
+        if next_stage == "shortlisted":
+            candidate.shortlist_decision = "shortlisted"
+            candidate.final_decision = None
+            candidate.stage = "shortlisted"
+        elif next_stage == "rejected":
+            candidate.shortlist_decision = "rejected"
+            candidate.final_decision = "rejected"
+            candidate.stage = "rejected"
+        else:
+            candidate.stage = next_stage
+
         db.commit()
         db.refresh(candidate)
         return candidate
@@ -178,28 +191,49 @@ class RecruitmentService:
         if not interview:
             return None
 
+        original_status = interview.status
         updates = payload.model_dump()
         for field, value in updates.items():
+            if field == "transcript" and value is None:
+                continue
             setattr(interview, field, value)
 
-        candidate = interview.candidate
+        candidate = (
+            db.query(Candidate)
+            .filter(Candidate.id == interview.candidate_id)
+            .first()
+        )
         if candidate is not None:
+            recommendation = (payload.recommendation or "").lower()
+            interview_was_completed = original_status == "completed"
+
             candidate.interview_score = payload.score
             candidate.interview_summary = payload.feedback
             candidate.ai_score = payload.score
             candidate.ai_summary = payload.feedback
-            recommendation = (payload.recommendation or "").lower()
-            candidate.final_decision = recommendation or payload.status
 
             if recommendation in {"reject", "rejected"} or payload.status == "rejected":
+                candidate.final_decision = "rejected"
                 candidate.stage = "rejected"
             elif recommendation in {"hire", "hired"} or payload.status == "hired":
+                candidate.final_decision = "hired"
                 candidate.stage = "hired"
+            elif not interview_was_completed and recommendation in {"advance", "shortlisted"}:
+                candidate.shortlist_decision = "shortlisted"
+                candidate.final_decision = None
+                candidate.stage = "interview_in_progress"
+                interview.status = "in_progress"
             else:
+                candidate.final_decision = recommendation or payload.status
+                candidate.stage = "interviewed"
+
+            if interview.status == "completed" and candidate.stage == "interview_in_progress":
                 candidate.stage = "interviewed"
 
         db.commit()
         db.refresh(interview)
+        if candidate is not None:
+            db.refresh(candidate)
         return interview
 
     @staticmethod
@@ -226,6 +260,34 @@ class RecruitmentService:
         db.commit()
         db.refresh(candidate)
         return candidate
+
+    @staticmethod
+    def update_candidate_ai_results(
+        db: Session,
+        candidate_id: int,
+        score: float,
+        summary: str,
+    ) -> Optional[Candidate]:
+        """
+        Backward-compatible alias used by older screening callers/tests.
+
+        The current workflow stores screening results with a shortlist decision,
+        so infer the decision from the configured threshold and reuse the newer
+        persistence method.
+        """
+        shortlist_decision = (
+            "shortlisted"
+            if score >= RecruitmentService.SHORTLIST_THRESHOLD
+            else "rejected"
+        )
+
+        return RecruitmentService.update_candidate_screening_result(
+            db,
+            candidate_id,
+            score,
+            summary,
+            shortlist_decision,
+        )
 
     @staticmethod
     def update_candidate_interview_result(

@@ -1,1 +1,0 @@
-import{b as m}from"./index-By0l6TuT.js";const o={getAll:()=>m.get("/employees"),getById:e=>m.get(`/employees/${e}`),create:e=>m.post("/employees",e),update:(e,t)=>m.put(`/employees/${e}`,t),delete:e=>m.delete(`/employees/${e}`),summary:e=>m.get(`/employees/${e}/summary`),myTeam:()=>m.get("/employees/my-team")};export{o as e};

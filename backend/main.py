@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import os
 
 from config import settings
+from sqlalchemy import text
 
 from core.resume_upload import ensure_upload_dir
 from core.voice_upload import ensure_voice_upload_dir
@@ -20,7 +21,8 @@ from routers.public import router as public_router
 from routers.dashboard import router as dashboard_router
 from routers.analytics import router as analytics_router
 from services.bootstrap_service import bootstrap_demo_data
-from database import SessionLocal
+from database import SessionLocal, engine
+from core.audit_logger import log_ai_interview_event
 from fastapi.middleware.cors import CORSMiddleware
 
 ensure_upload_dir()
@@ -52,8 +54,25 @@ app.include_router(dashboard_router)
 app.include_router(analytics_router)
 
 
+def ensure_interview_transcript_column() -> None:
+    if not settings.DATABASE_URL.startswith("sqlite"):
+        return
+
+    with engine.begin() as connection:
+        columns = {
+            row[1]
+            for row in connection.execute(text("PRAGMA table_info(interviews)")).fetchall()
+        }
+
+        if columns and "transcript" not in columns:
+            connection.execute(text("ALTER TABLE interviews ADD COLUMN transcript TEXT"))
+
+
 @app.on_event("startup")
 def seed_demo_data():
+    ensure_interview_transcript_column()
+    log_ai_interview_event("APP_START", message="Backend startup completed")
+
     if os.environ.get("PYTEST_CURRENT_TEST"):
         return
 

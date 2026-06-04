@@ -147,3 +147,27 @@ def test_ai_rank_and_chats_and_transcribe(admin_auth_header, client, monkeypatch
     resp = client.post("/api/ai/voice/transcribe", files=files, headers=hr_headers)
     assert resp.status_code == 200
     assert resp.json().get("transcript") == "hello world"
+
+
+def test_ai_transcribe_voice_falls_back_on_short_transcript(monkeypatch, tmp_path):
+    from services import ai_service
+
+    calls = []
+    audio_path = tmp_path / "sample.webm"
+    audio_path.write_bytes(b"AUDIO")
+
+    def fake_whisper(audio_path, language=None):
+        calls.append(("whisper", language))
+        return {"success": True, "transcript": "You You", "language": "en", "model": "small"}
+
+    def fake_ollama(audio_path, language=None):
+        calls.append(("ollama", language))
+        return {"success": True, "transcript": "This is my answer.", "language": "en", "model": "whisper"}
+
+    monkeypatch.setattr(ai_service.WhisperClient, "transcribe", staticmethod(fake_whisper))
+    monkeypatch.setattr(ai_service.OllamaClient, "transcribe", staticmethod(fake_ollama))
+
+    result = ai_service.AIService.transcribe_voice(str(audio_path))
+
+    assert result["transcript"] == "This is my answer."
+    assert calls == [("whisper", "en"), ("whisper", None), ("ollama", "en")]

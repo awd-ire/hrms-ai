@@ -9,6 +9,7 @@ from core.permissions import (
     AdminOrManagerOrHR,
     InterviewerRoles,
 )
+from core.audit_logger import log_ai_interview_event
 from core.dependencies import get_optional_current_user
 from core.resume_upload import resolve_resume_path
 from database import get_db
@@ -88,7 +89,13 @@ def list_candidates(
     db: Session = Depends(get_db),
     current_user=Depends(get_optional_current_user),
 ):
-    return RecruitmentService.list_candidates(db)
+    candidates = RecruitmentService.list_candidates(db)
+    log_ai_interview_event(
+        "HR_CANDIDATE_LIST_VIEW",
+        candidate_count=len(candidates),
+        interview_count=sum(len(candidate.interviews or []) for candidate in candidates),
+    )
+    return candidates
 
 
 @router.post(
@@ -155,6 +162,23 @@ def get_candidate(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Candidate not found",
         )
+
+    latest_transcript = ""
+    if candidate.interviews:
+        latest_interview = sorted(
+            candidate.interviews,
+            key=lambda interview: (interview.created_at or 0, interview.id or 0),
+            reverse=True,
+        )[0]
+        latest_transcript = latest_interview.transcript or ""
+
+    log_ai_interview_event(
+        "HR_CANDIDATE_VIEW",
+        candidate_id=candidate.id,
+        stage=candidate.stage,
+        interview_count=len(candidate.interviews or []),
+        transcript_chars=len(latest_transcript),
+    )
     return candidate
 
 

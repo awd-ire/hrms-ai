@@ -3,6 +3,12 @@ import Modal from "@/components/common/Modal";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import { recruitmentApi } from "@/api/recruitmentApi";
+import {
+  getCandidateStageBadgeType,
+  getCandidateStageLabel,
+  getFinalDecisionLabel,
+  getShortlistDecisionLabel,
+} from "@/utils/candidateStatus";
 
 const CandidateDetailsModal = ({
   open,
@@ -12,6 +18,7 @@ const CandidateDetailsModal = ({
   onReject,
   onScheduleInterview,
   actionLoading = false,
+  shortlistButtonLabel = "Final Select Candidate",
 }) => {
   const [scheduling, setScheduling] = useState(false);
   const [scheduleError, setScheduleError] = useState(null);
@@ -34,9 +41,12 @@ const CandidateDetailsModal = ({
   if (!candidate) return null;
 
   const interviewCount = candidate.interviews?.length || 0;
-  const latestInterview = candidate.interviews?.[0] || null;
-  const canDecide = candidate.stage === "applied";
+  const latestInterview = [...(candidate.interviews || [])]
+    .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())[0] || null;
+  const canDecide = ["applied", "interview_scheduled", "interview_in_progress"].includes(candidate.stage);
   const canSchedule = candidate.stage === "shortlisted";
+  const alreadyShortlisted = candidate.shortlist_decision === "shortlisted";
+  const latestTranscript = latestInterview?.transcript || "";
 
   const handleScheduleInterview = async (e) => {
     e.preventDefault();
@@ -63,16 +73,20 @@ const CandidateDetailsModal = ({
     <Modal open={open} onClose={onClose} title={`Candidate Details: ${candidate.full_name}`}>
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge label={candidate.stage || "applied"} type="info" />
+          <Badge label={getCandidateStageLabel(candidate.stage)} type={getCandidateStageBadgeType(candidate.stage)} />
           {candidate.shortlist_decision && (
             <Badge
-              label={candidate.shortlist_decision}
+              label={
+                candidate.shortlist_decision === "shortlisted"
+                  ? "Shortlisted - Final selected"
+                  : getShortlistDecisionLabel(candidate.shortlist_decision)
+              }
               type={candidate.shortlist_decision === "shortlisted" ? "success" : "danger"}
             />
           )}
           {candidate.final_decision && (
             <Badge
-              label={candidate.final_decision}
+              label={getFinalDecisionLabel(candidate.final_decision)}
               type={candidate.final_decision === "hired" ? "success" : "danger"}
             />
           )}
@@ -146,6 +160,12 @@ const CandidateDetailsModal = ({
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Status: {latestInterview.status} | Recommendation: {latestInterview.recommendation || "-"}
             </p>
+            <div className="mt-3 rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-900">
+              <p className="text-xs uppercase tracking-wide text-gray-500">Transcript</p>
+              <p className="mt-1 whitespace-pre-wrap text-gray-700 dark:text-gray-200">
+                {latestTranscript || "No transcript available yet."}
+              </p>
+            </div>
           </div>
         )}
 
@@ -153,9 +173,9 @@ const CandidateDetailsModal = ({
           <Button
             onClick={() => onShortlist?.(candidate)}
             loading={actionLoading}
-            disabled={!canDecide}
+            disabled={!canDecide || alreadyShortlisted}
           >
-            Shortlist Candidate
+            {alreadyShortlisted ? "Shortlisted - Final selected" : shortlistButtonLabel}
           </Button>
           <Button
             variant="secondary"
@@ -169,12 +189,12 @@ const CandidateDetailsModal = ({
 
         {canSchedule && (
           <form className="space-y-3 rounded-lg border border-dashed p-4" onSubmit={handleScheduleInterview}>
-            <div>
-              <p className="text-sm font-semibold">Next step: schedule interview</p>
-              <p className="text-xs text-gray-500">
-                After shortlisting, set the interview round and date so the candidate can see it in the portal.
-              </p>
-            </div>
+          <div>
+            <p className="text-sm font-semibold">Next step: schedule interview</p>
+            <p className="text-xs text-gray-500">
+                After this selection, set the interview round and date so the candidate can see it in the portal.
+            </p>
+          </div>
 
             <div className="grid gap-3 md:grid-cols-2">
               <label className="space-y-1">

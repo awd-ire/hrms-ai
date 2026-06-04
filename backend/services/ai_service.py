@@ -13,6 +13,8 @@ from core.whisper_client import WhisperClient
 class AIService:
     """Service layer for AI inference operations"""
 
+    INTERVIEW_QUESTION_COUNT = 2
+
     @staticmethod
     def _coerce_text(value: Any) -> str:
         if value is None:
@@ -53,7 +55,7 @@ class AIService:
         return normalized
 
     @staticmethod
-    def _fallback_interview_questions(context: Optional[Dict[str, Any]] = None, total_questions: int = 5) -> List[Dict[str, str]]:
+    def _fallback_interview_questions(context: Optional[Dict[str, Any]] = None, total_questions: int = 2) -> List[Dict[str, str]]:
         job = (context or {}).get("job_posting", {}) if context else {}
         title = str(job.get("title", "")).lower()
         requirements = str(job.get("requirements", "")).lower()
@@ -106,7 +108,7 @@ class AIService:
     @staticmethod
     def generate_interview_question_bank(
         context: Optional[Dict[str, Any]] = None,
-        total_questions: int = 5,
+        total_questions: int = INTERVIEW_QUESTION_COUNT,
     ) -> Dict[str, Any]:
         context_text = json.dumps(context, indent=2) if context else "None"
         messages = [
@@ -536,20 +538,52 @@ IMPORTANT: Return ONLY valid JSON."""
         )
 
     @staticmethod
-    def transcribe_voice(audio_path: str) -> Dict[str, Any]:
+    def transcribe_voice(audio_path: str, language: Optional[str] = "en") -> Dict[str, Any]:
         path = Path(audio_path)
         if not path.exists():
             raise ValueError("Audio file not found on disk")
 
-        result = WhisperClient.transcribe(str(path))
-        if not result.get("success"):
-            raise RuntimeError(result.get("error", "Transcription failed"))
+        def is_low_quality(transcript: str) -> bool:
+            normalized = transcript.strip()
+            if not normalized:
+                return True
+            return len(normalized.split()) < 3 or len(normalized) < 12
 
-        return {
-            "transcript": result.get("transcript", ""),
-            "language": result.get("language"),
-            "audio_path": audio_path,
-        }
+        attempts = [
+            ("whisper", language),
+            ("whisper", None),
+            ("ollama", language),
+            ("ollama", None),
+        ]
+        best_result: Optional[Dict[str, Any]] = None
+        last_error = "Transcription failed"
+
+        for provider, attempt_language in attempts:
+            if provider == "whisper":
+                result = WhisperClient.transcribe(str(path), language=attempt_language)
+            else:
+                result = OllamaClient.transcribe(str(path), language=attempt_language)
+
+            transcript = str(result.get("transcript", "")).strip()
+            if result.get("success") and transcript:
+                payload = {
+                    "transcript": transcript,
+                    "language": result.get("language"),
+                    "audio_path": audio_path,
+                }
+                if not is_low_quality(transcript):
+                    payload["provider"] = provider
+                    return payload
+                if best_result is None or len(transcript) > len(str(best_result.get("transcript", ""))):
+                    best_result = {**payload, "provider": provider}
+
+            if result.get("error"):
+                last_error = result.get("error")
+
+        if best_result is not None:
+            return best_result
+
+        raise RuntimeError(last_error)
 
     @staticmethod
     def evaluate_interview(

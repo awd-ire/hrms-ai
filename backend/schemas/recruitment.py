@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class JobPostingCreate(BaseModel):
@@ -57,6 +57,22 @@ class CandidateStageUpdate(BaseModel):
     stage: str
 
 
+class InterviewResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    candidate_id: int
+    interviewer_id: Optional[int] = None
+    interview_round: str
+    scheduled_date: date
+    feedback: Optional[str] = None
+    transcript: Optional[str] = None
+    score: Optional[float] = None
+    recommendation: Optional[str] = None
+    status: str
+    created_at: Optional[datetime] = None
+
+
 class CandidateResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -80,6 +96,7 @@ class CandidateResponse(BaseModel):
     stage: str
     applied_date: date
     created_at: Optional[datetime] = None
+    interviews: list[InterviewResponse] = Field(default_factory=list)
 
 
 class InterviewCreate(BaseModel):
@@ -92,6 +109,7 @@ class InterviewCreate(BaseModel):
 
 class InterviewFeedbackUpdate(BaseModel):
     feedback: str
+    transcript: Optional[str] = None
     score: float
     recommendation: str
     status: str = "completed"
@@ -100,21 +118,6 @@ class InterviewFeedbackUpdate(BaseModel):
 class InterviewRetryRequest(BaseModel):
     interview_round: Optional[str] = None
     scheduled_date: Optional[date] = None
-
-
-class InterviewResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    candidate_id: int
-    interviewer_id: Optional[int] = None
-    interview_round: str
-    scheduled_date: date
-    feedback: Optional[str] = None
-    score: Optional[float] = None
-    recommendation: Optional[str] = None
-    status: str
-    created_at: Optional[datetime] = None
 
 
 class RecruitmentAnalyticsResponse(BaseModel):

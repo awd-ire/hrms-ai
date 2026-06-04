@@ -3,6 +3,10 @@ import { recruitmentApi } from "@/api/recruitmentApi";
 import Button from "@/components/common/Button";
 import ApiError from "@/components/common/ApiError";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import {
+  getFinalDecisionLabel,
+  getShortlistDecisionLabel,
+} from "@/utils/candidateStatus";
 
 const eligibleStages = new Set(["shortlisted", "interview_scheduled", "interview_in_progress", "interviewed", "hired"]);
 
@@ -63,6 +67,7 @@ const InterviewWorkspace = () => {
     })[0];
   }, [selectedCandidate]);
   const interviewCompleted = latestInterview?.status === "completed";
+  const latestTranscript = latestInterview?.transcript || result?.transcript || "";
 
   const interviewCandidates = useMemo(
     () => candidates.filter((candidate) => eligibleStages.has(candidate.stage)),
@@ -88,6 +93,7 @@ const InterviewWorkspace = () => {
     }));
     setSuccess("");
     setError(null);
+    setResult(null);
   };
 
   const scheduleInterview = async (e) => {
@@ -114,8 +120,8 @@ const InterviewWorkspace = () => {
   };
 
   const updateReviewDecision = async (recommendation) => {
-    if (!selectedCandidate || !latestInterview) {
-      setError({ message: "Select a candidate with a completed AI interview first." });
+    if (!selectedCandidate) {
+      setError({ message: "Select a candidate with an interview record first." });
       return;
     }
 
@@ -124,6 +130,20 @@ const InterviewWorkspace = () => {
     setError(null);
 
     try {
+      if (recommendation === "shortlist") {
+        await recruitmentApi.updateStage(selectedCandidate.id, { stage: "shortlisted" });
+        setSuccess("Candidate shortlisted successfully.");
+        await loadCandidates();
+        return;
+      }
+
+      if (!latestInterview) {
+        await recruitmentApi.updateStage(selectedCandidate.id, { stage: recommendation === "reject" ? "rejected" : "shortlisted" });
+        setSuccess(recommendation === "reject" ? "Candidate rejected." : "Candidate shortlisted successfully.");
+        await loadCandidates();
+        return;
+      }
+
       await recruitmentApi.interviewFeedback(latestInterview.id, {
         feedback: selectedCandidate.interview_summary || selectedCandidate.ai_summary || "HR review completed.",
         score: selectedCandidate.interview_score ?? selectedCandidate.ai_score ?? 0,
@@ -223,7 +243,11 @@ const InterviewWorkspace = () => {
                   </div>
                 </div>
                 <div className="mt-2 text-xs text-gray-500">
-                  Shortlist: {candidate.shortlist_decision || "pending"} | Final: {candidate.final_decision || "pending"}
+                  Final Select: {
+                    candidate.shortlist_decision === "shortlisted"
+                      ? "Shortlisted - Final selected"
+                      : getShortlistDecisionLabel(candidate.shortlist_decision) || "Pending"
+                  } | Final: {getFinalDecisionLabel(candidate.final_decision) || "Pending"}
                 </div>
                 <div className="mt-1 text-xs text-gray-500">
                   Interview score: {candidate.interview_score ?? "-"}
@@ -310,9 +334,9 @@ const InterviewWorkspace = () => {
 
               <div className="rounded-xl border border-dashed p-4">
                 <div>
-                  <h3 className="font-semibold">Review AI interview</h3>
+                  <h3 className="font-semibold">HR decision</h3>
                   <p className="text-xs text-gray-500">
-                    After the candidate completes the AI interview, review the score and decide the next step.
+                    Shortlist means the candidate is selected for the role. It can be used with or without an AI interview.
                   </p>
                 </div>
 
@@ -331,19 +355,25 @@ const InterviewWorkspace = () => {
                     </p>
                   </div>
 
+                  <div className="rounded-lg bg-gray-50 p-3 text-sm dark:bg-gray-900">
+                    <div className="text-xs uppercase tracking-wide text-gray-500">Transcript</div>
+                    <p className="mt-1 whitespace-pre-wrap text-gray-700 dark:text-gray-200">
+                      {latestTranscript || "No transcript available yet."}
+                    </p>
+                  </div>
+
                   <div className="flex flex-wrap gap-3">
                     <Button
-                      onClick={() => updateReviewDecision("advance")}
+                      onClick={() => updateReviewDecision("shortlist")}
                       loading={reviewLoading}
-                      disabled={!interviewCompleted}
                     >
-                      Allow Next Step
+                      Final Select Candidate
                     </Button>
                     <Button
                       variant="danger"
                       onClick={() => updateReviewDecision("reject")}
                       loading={reviewLoading}
-                      disabled={!interviewCompleted}
+                      disabled={!selectedCandidate}
                     >
                       Reject Candidate
                     </Button>
@@ -356,6 +386,11 @@ const InterviewWorkspace = () => {
                       Give Another Chance
                     </Button>
                   </div>
+                  {!interviewCompleted && (
+                    <p className="text-xs text-amber-700">
+                      Final selection now marks the candidate as shortlisted in the public portal.
+                    </p>
+                  )}
                 </div>
               </div>
             </>
@@ -372,7 +407,7 @@ const InterviewWorkspace = () => {
                 <div className="rounded-lg border bg-white p-3 text-sm dark:bg-gray-800">
                   <div className="text-xs uppercase tracking-wide text-gray-500">Transcript</div>
                   <p className="mt-1 whitespace-pre-wrap text-gray-700 dark:text-gray-200">
-                    {result.transcript || "No transcript available."}
+                    {latestTranscript || "No transcript available."}
                   </p>
                 </div>
                 <div className="rounded-lg border bg-white p-3 text-sm dark:bg-gray-800">

@@ -71,12 +71,19 @@ export const useRecruitment = () => {
 
   const updateStage = useCallback(async (id, payload) => {
     try {
-      await recruitmentApi.updateStage(id, payload);
-      await getCandidates();
+      const res = await recruitmentApi.updateStage(id, payload);
+      const updatedCandidate = res.data;
+      setCandidates((prev) =>
+        prev.map((candidate) =>
+          String(candidate.id) === String(id) ? updatedCandidate : candidate
+        )
+      );
+      return updatedCandidate;
     } catch (err) {
       handleError(err);
+      return null;
     }
-  }, [getCandidates]);
+  }, []);
 
   const analyticsData = useCallback(async () => {
     try {

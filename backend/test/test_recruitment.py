@@ -255,7 +255,7 @@ def test_public_live_interview_cannot_restart_after_completion(admin_auth_header
     monkeypatch.setattr(
         ai_service.AIService,
         "generate_interview_question_bank",
-        staticmethod(lambda context=None, total_questions=5: {
+        staticmethod(lambda context=None, total_questions=2: {
             "questions": [{"question": "Tell me about yourself.", "guidance": "Open"}]
         }),
     )
@@ -297,6 +297,20 @@ def test_public_live_interview_cannot_restart_after_completion(admin_auth_header
         files=answer_files,
     )
     assert continue_resp.status_code == 200, continue_resp.text
+
+    candidate_resp = client.get(f"/api/recruitment/candidates/{candidate['id']}", headers=admin_auth_header)
+    assert candidate_resp.status_code == 200
+    candidate_json = candidate_resp.json()
+    assert candidate_json["interviews"][0]["transcript"] == "First answer."
+
+    from core.audit_logger import get_ai_interview_log_path
+
+    log_text = get_ai_interview_log_path().read_text(encoding="utf-8")
+    assert "AI_INTERVIEW_START" in log_text
+    assert candidate["email"] in log_text
+    assert "AI_INTERVIEW_TRANSCRIPT" in log_text
+    assert "First answer." in log_text
+    assert "HR_CANDIDATE_VIEW" in log_text
 
     restart_resp = client.post(
         "/api/public/interview/live/start",
@@ -355,7 +369,7 @@ def test_public_live_interview_rejects_empty_transcript(client, admin_auth_heade
     monkeypatch.setattr(
         ai_service.AIService,
         "generate_interview_question_bank",
-        staticmethod(lambda context=None, total_questions=5: {
+        staticmethod(lambda context=None, total_questions=2: {
             "questions": [{"question": "Tell me about yourself.", "guidance": "Open"}]
         }),
     )
@@ -432,7 +446,7 @@ def test_hr_can_grant_another_ai_interview_chance(admin_auth_header, client, mon
     monkeypatch.setattr(
         ai_service.AIService,
         "generate_interview_question_bank",
-        staticmethod(lambda context=None, total_questions=5: {
+        staticmethod(lambda context=None, total_questions=2: {
             "questions": [{"question": "Tell me about yourself.", "guidance": "Open"}]
         }),
     )

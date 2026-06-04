@@ -6,6 +6,7 @@ import JobPostingForm from "@/pages/recruitment/JobPostingForm";
 import CandidateDetailsModal from "@/components/recruitment/CandidateDetailsModal";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ApiError from "@/components/common/ApiError";
+import { getCandidateStageLabel } from "@/utils/candidateStatus";
 
 /**
  * Recruitment Pipeline Dashboard
@@ -73,12 +74,12 @@ const RecruitmentPipeline = () => {
     setDetailsError(null);
 
     try {
-      await recruitmentApi.updateStage(candidate.id, { stage });
+      const res = await recruitmentApi.updateStage(candidate.id, { stage });
+      const updatedCandidate = res.data;
       await getCandidates();
 
       if (selectedCandidate?.id === candidate.id) {
-        const updatedRes = await recruitmentApi.getCandidateById(candidate.id);
-        setSelectedCandidate(updatedRes.data);
+        setSelectedCandidate(updatedCandidate);
       }
     } catch (err) {
       setDetailsError(err);
@@ -115,7 +116,7 @@ const RecruitmentPipeline = () => {
               className="bg-gray-100 dark:bg-gray-900 p-2 rounded-lg"
             >
               <h3 className="font-semibold mb-2 capitalize">
-                {stage}
+                {getCandidateStageLabel(stage)}
               </h3>
 
               <div className="space-y-2">
@@ -149,6 +150,7 @@ const RecruitmentPipeline = () => {
         onReject={(candidate) => handleStageChange(candidate, "rejected")}
         onScheduleInterview={handleInterviewScheduled}
         actionLoading={actionLoading || detailsLoading}
+        shortlistButtonLabel="Shortlist for Screening"
       />
     </div>
   );

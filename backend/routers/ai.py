@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 from sqlalchemy.orm import Session
 
 from core.permissions import Authenticated, HROnly, HROrManager
+from core.audit_logger import log_ai_interview_event
 from core.voice_upload import save_audio_file
 from database import get_db
 from models.recruitment import Interview
@@ -223,6 +224,12 @@ async def conduct_interview(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     transcript = transcript_result.get("transcript", "")
+    log_ai_interview_event(
+        "AI_INTERVIEW_CONDUCT_TRANSCRIPT",
+        candidate_id=candidate_id,
+        transcript=transcript,
+        transcript_chars=len(transcript),
+    )
 
     candidate = RecruitmentService.get_candidate(db, candidate_id)
     if not candidate:
@@ -265,10 +272,18 @@ async def conduct_interview(
         interview.id,
         InterviewFeedbackUpdate(
             feedback=evaluation.get("summary", ""),
+            transcript=transcript,
             score=evaluation.get("score", 0),
             recommendation=evaluation.get("next_stage", "hold"),
             status="completed",
         ),
+    )
+
+    log_ai_interview_event(
+        "AI_INTERVIEW_CONDUCT_COMPLETED",
+        candidate_id=candidate_id,
+        interview_id=interview.id,
+        transcript_chars=len(transcript),
     )
 
     return {

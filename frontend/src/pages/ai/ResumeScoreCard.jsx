@@ -1,5 +1,6 @@
 import React from "react";
 import Badge from "@/components/common/Badge";
+import { getShortlistDecisionLabel } from "@/utils/candidateStatus";
 
 /**
  * Resume AI Score Card
@@ -30,7 +31,7 @@ const ResumeScoreCard = ({ data }) => {
       <div className="flex flex-wrap gap-2 text-xs">
         {data.shortlist_decision && (
           <Badge
-            label={data.shortlist_decision}
+            label={getShortlistDecisionLabel(data.shortlist_decision)}
             type={data.shortlist_decision === "shortlisted" ? "success" : "danger"}
           />
         )}
@@ -40,6 +41,15 @@ const ResumeScoreCard = ({ data }) => {
       </div>
 
       <p className="text-sm text-gray-600">{data.summary}</p>
+
+      <div className="grid gap-2 text-xs text-gray-500 md:grid-cols-2">
+        {data.candidate_id !== undefined && data.candidate_id !== null && (
+          <p>Candidate ID: {data.candidate_id}</p>
+        )}
+        {data.resume_path && (
+          <p className="truncate">Resume: {data.resume_path}</p>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-3 text-xs">
         <div>

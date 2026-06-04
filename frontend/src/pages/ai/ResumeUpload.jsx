@@ -9,9 +9,11 @@ import FileUpload from "@/components/common/FileUpload";
 const ResumeUpload = ({
   candidates = [],
   selectedCandidateId,
+  selectedCandidate = null,
   onCandidateChange,
   jobDescription,
   onJobDescriptionChange,
+  onUseCandidateContext,
   onUpload,
 }) => {
   const useStoredCandidate = Boolean(selectedCandidateId);
@@ -40,14 +42,34 @@ const ResumeUpload = ({
             {candidates.map((candidate) => (
               <option key={candidate.id} value={candidate.id}>
                 {candidate.full_name}
+                {candidate.job_posting?.title ? ` - ${candidate.job_posting.title}` : ""}
                 {candidate.screening_score !== undefined && candidate.screening_score !== null
                   ? ` - Screening ${candidate.screening_score}`
-                  : candidate.ai_score !== undefined
+                  : candidate.ai_score !== undefined && candidate.ai_score !== null
                   ? ` - AI ${candidate.ai_score}`
                   : ""}
               </option>
             ))}
           </select>
+
+          {selectedCandidate && (
+            <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-100">
+              <p className="font-semibold">{selectedCandidate.full_name}</p>
+              <p className="mt-1 text-xs uppercase tracking-wide opacity-80">
+                {selectedCandidate.job_posting?.title || "Stored candidate"}
+              </p>
+              <p className="mt-2 text-sm opacity-90">
+                {selectedCandidate.job_posting?.description || "Using the candidate's saved resume and profile context."}
+              </p>
+              <button
+                type="button"
+                className="mt-3 rounded-md border border-blue-300 px-3 py-1 text-xs font-medium text-blue-900 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-100 dark:hover:bg-blue-900"
+                onClick={() => onUseCandidateContext?.(selectedCandidate)}
+              >
+                Use candidate job context
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -71,6 +93,12 @@ const ResumeUpload = ({
         maxSizeMB={5}
         fieldName="resume"
         requireFile={!useStoredCandidate}
+        hideInput={useStoredCandidate}
+        helperText={
+          useStoredCandidate
+            ? "The stored resume will be analyzed. Clear the selection to upload a new file instead."
+            : "Upload a new resume file or switch to a stored candidate."
+        }
         additionalFields={{
           candidate_id: selectedCandidateId || undefined,
           job_description: jobDescription || undefined,

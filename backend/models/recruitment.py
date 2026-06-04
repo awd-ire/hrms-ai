@@ -235,6 +235,11 @@ class Interview(Base):
         nullable=True
     )
 
+    transcript = Column(
+        Text,
+        nullable=True
+    )
+
     score = Column(
         Float,
         nullable=True

@@ -66,3 +66,4 @@ def test_conduct_interview_flow(client, admin_auth_header, monkeypatch):
     assert gresp.status_code == 200
     updated = gresp.json()
     assert updated.get("stage") == "interviewed"
+    assert updated.get("interviews", [{}])[0].get("transcript") == "Candidate responded well."

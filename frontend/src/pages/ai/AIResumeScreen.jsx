@@ -8,6 +8,10 @@ import ApiError from "@/components/common/ApiError";
 import Button from "@/components/common/Button";
 import CandidateDetailsModal from "@/components/recruitment/CandidateDetailsModal";
 import Table from "@/components/common/Table";
+import {
+  getFinalDecisionLabel,
+  getShortlistDecisionLabel,
+} from "@/utils/candidateStatus";
 
 /**
  * Full AI Resume Screening Page
@@ -20,14 +24,31 @@ const AIResumeScreen = () => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState(null);
   const [error, setError] = useState(null);
   const [candidates, setCandidates] = useState([]);
   const [selectedCandidateId, setSelectedCandidateId] = useState("");
   const [jobDescription, setJobDescription] = useState("");
+  const [jobDescriptionTouched, setJobDescriptionTouched] = useState(false);
   const [selectedCandidateDetails, setSelectedCandidateDetails] = useState(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [detailsError, setDetailsError] = useState(null);
+
+  const buildCandidateJobContext = useCallback((candidate) => {
+    if (!candidate?.job_posting) {
+      return "";
+    }
+
+    const parts = [
+      candidate.job_posting.title,
+      candidate.job_posting.description,
+      candidate.job_posting.requirements,
+    ].filter(Boolean);
+
+    return parts.join("\n\n");
+  }, []);
 
   const selectedCandidate = useMemo(
     () =>
@@ -70,17 +91,58 @@ const AIResumeScreen = () => {
     setDetailsError(null);
   };
 
+  const handleCandidateChange = (candidateId) => {
+    setSelectedCandidateId(candidateId);
+
+    if (!candidateId) {
+      return;
+    }
+
+    const candidate = candidates.find((item) => String(item.id) === String(candidateId));
+    if (!candidate) {
+      return;
+    }
+
+    if (!jobDescriptionTouched || !jobDescription.trim()) {
+      const candidateContext = buildCandidateJobContext(candidate);
+      if (candidateContext) {
+        setJobDescription(candidateContext);
+      }
+    }
+  };
+
+  const handleJobDescriptionChange = (value) => {
+    setJobDescription(value);
+    setJobDescriptionTouched(true);
+  };
+
+  const handleUseCandidateContext = (candidate) => {
+    const candidateContext = buildCandidateJobContext(candidate);
+    if (candidateContext) {
+      setJobDescription(candidateContext);
+      setJobDescriptionTouched(true);
+    }
+  };
+
   const updateCandidateStage = useCallback(
     async (candidate, stage) => {
       setActionLoading(true);
       setError(null);
 
       try {
-        await recruitmentApi.updateStage(candidate.id, { stage });
-        await loadCandidates();
+        const res = await recruitmentApi.updateStage(candidate.id, { stage });
+        const updatedCandidate = res.data;
+        setCandidates((prev) =>
+          prev.map((item) =>
+            String(item.id) === String(updatedCandidate.id) ? updatedCandidate : item
+          )
+        );
+        if (String(selectedCandidateId) === String(updatedCandidate.id)) {
+          setSelectedCandidateId(String(updatedCandidate.id));
+        }
 
         if (selectedCandidateDetails?.id === candidate.id) {
-          await openCandidateDetails(candidate);
+          setSelectedCandidateDetails(updatedCandidate);
         }
       } catch (err) {
         setError(err);
@@ -88,7 +150,7 @@ const AIResumeScreen = () => {
         setActionLoading(false);
       }
     },
-    [loadCandidates, openCandidateDetails, selectedCandidateDetails]
+    [selectedCandidateDetails, selectedCandidateId]
   );
 
   const handleInterviewScheduled = useCallback(
@@ -106,6 +168,25 @@ const AIResumeScreen = () => {
     loadCandidates();
   }, [loadCandidates]);
 
+  useEffect(() => {
+    const loadStatus = async () => {
+      setStatusLoading(true);
+      try {
+        const res = await aiApi.status();
+        setAiStatus(res.data);
+      } catch (err) {
+        setAiStatus({
+          status: "unavailable",
+          message: err?.message || "Unable to load AI status",
+        });
+      } finally {
+        setStatusLoading(false);
+      }
+    };
+
+    loadStatus();
+  }, []);
+
   const handleUpload = async (formData) => {
     setLoading(true);
     setError(null);
@@ -115,6 +196,13 @@ const AIResumeScreen = () => {
       const res = await aiApi.resumeScreen(formData);
       setResult(res.data);
       await loadCandidates();
+
+      if (
+        res.data?.candidate_id &&
+        selectedCandidateDetails?.id === res.data.candidate_id
+      ) {
+        await openCandidateDetails({ id: res.data.candidate_id });
+      }
     } catch (err) {
       setError(err);
     } finally {
@@ -138,15 +226,17 @@ const AIResumeScreen = () => {
           variant="secondary"
           className="px-3 py-1 text-xs"
           onClick={() => updateCandidateStage(row, "shortlisted")}
-          disabled={row.stage !== "applied"}
+          disabled={!["applied", "interview_scheduled", "interview_in_progress"].includes(row.stage)}
         >
-          Shortlist
+          {row.shortlist_decision === "shortlisted"
+            ? "Screening Shortlisted"
+            : "Shortlist for Screening"}
         </Button>
         <Button
           variant="danger"
           className="px-3 py-1 text-xs"
           onClick={() => updateCandidateStage(row, "rejected")}
-          disabled={row.stage !== "applied"}
+          disabled={!["applied", "interview_scheduled", "interview_in_progress"].includes(row.stage)}
         >
           Reject
         </Button>
@@ -156,10 +246,11 @@ const AIResumeScreen = () => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-xl font-bold">AI Resume Screening</h1>
-        <p className="text-sm text-gray-500">
-          Screen a fresh upload or reuse a candidate already stored in the database.
+      <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-cyan-900 to-indigo-700 px-6 py-8 text-white shadow-lg">
+        <p className="text-xs uppercase tracking-[0.3em] text-cyan-200">AI Screening Workflow</p>
+        <h1 className="mt-2 text-3xl font-bold">Screen resumes, shortlist candidates, and hand off to interviews</h1>
+        <p className="mt-2 max-w-3xl text-sm text-slate-200">
+          Pick a stored candidate or upload a new resume, add the role context, and let AI produce a score that updates the recruitment pipeline automatically.
         </p>
       </div>
 
@@ -168,9 +259,11 @@ const AIResumeScreen = () => {
           <ResumeUpload
             candidates={candidates}
             selectedCandidateId={selectedCandidateId}
-            onCandidateChange={setSelectedCandidateId}
+            selectedCandidate={selectedCandidate}
+            onCandidateChange={handleCandidateChange}
             jobDescription={jobDescription}
-            onJobDescriptionChange={setJobDescription}
+            onJobDescriptionChange={handleJobDescriptionChange}
+            onUseCandidateContext={handleUseCandidateContext}
             onUpload={handleUpload}
           />
 
@@ -183,6 +276,45 @@ const AIResumeScreen = () => {
         </div>
 
         <div className="space-y-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <h2 className="font-semibold">AI Service Status</h2>
+                <p className="text-sm text-gray-500">
+                  Confirm the local model is ready before screening resumes.
+                </p>
+              </div>
+              {statusLoading ? (
+                <span className="text-sm text-gray-500">Checking...</span>
+              ) : (
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    aiStatus?.status === "ready"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-amber-100 text-amber-700"
+                  }`}
+                >
+                  {aiStatus?.status || "unknown"}
+                </span>
+              )}
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-md bg-gray-50 p-3 dark:bg-gray-900">
+                <p className="text-xs uppercase tracking-wide text-gray-500">Provider</p>
+                <p className="mt-1 font-medium">{aiStatus?.provider || "-"}</p>
+              </div>
+              <div className="rounded-md bg-gray-50 p-3 dark:bg-gray-900">
+                <p className="text-xs uppercase tracking-wide text-gray-500">Model</p>
+                <p className="mt-1 font-medium">{aiStatus?.model || "-"}</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-500">
+              {aiStatus?.message || "Status is loading..."}
+            </p>
+          </div>
+
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3">
             <div className="flex items-center justify-between gap-2">
               <div>
@@ -216,8 +348,16 @@ const AIResumeScreen = () => {
                         ? row.ai_score
                         : "-",
                   },
-                  { key: "shortlist_decision", label: "Shortlist" },
-                  { key: "final_decision", label: "Final Decision" },
+                  {
+                    key: "shortlist_decision",
+                    label: "Screening Shortlist",
+                    render: (row) => getShortlistDecisionLabel(row.shortlist_decision) || "-",
+                  },
+                  {
+                    key: "final_decision",
+                    label: "Final Decision",
+                    render: (row) => getFinalDecisionLabel(row.final_decision) || "-",
+                  },
                   {
                     key: "email",
                     label: "Email",
@@ -239,6 +379,7 @@ const AIResumeScreen = () => {
         onReject={(candidate) => updateCandidateStage(candidate, "rejected")}
         onScheduleInterview={handleInterviewScheduled}
         actionLoading={actionLoading || detailsLoading}
+        shortlistButtonLabel="Shortlist for Screening"
       />
     </div>
   );

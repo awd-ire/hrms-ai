@@ -1,6 +1,12 @@
 import React from "react";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
+import {
+  getCandidateStageBadgeType,
+  getCandidateStageLabel,
+  getFinalDecisionLabel,
+  getShortlistDecisionLabel,
+} from "@/utils/candidateStatus";
 
 /**
  * Candidate Card
@@ -15,7 +21,8 @@ const CandidateCard = ({
   onReject,
   actionLoading = false,
 }) => {
-  const canDecide = candidate.stage === "applied";
+  const canDecide = ["applied", "interview_scheduled", "interview_in_progress"].includes(candidate.stage);
+  const alreadyShortlisted = candidate.shortlist_decision === "shortlisted";
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow space-y-2">
@@ -23,18 +30,8 @@ const CandidateCard = ({
         <h3 className="font-semibold">{candidate.full_name}</h3>
 
         <Badge
-          label={candidate.stage}
-          type={
-            candidate.stage === "hired"
-              ? "success"
-              : candidate.stage === "rejected"
-              ? "danger"
-              : candidate.stage === "shortlisted"
-              ? "info"
-              : candidate.stage === "interview_scheduled"
-              ? "warning"
-              : "warning"
-          }
+          label={getCandidateStageLabel(candidate.stage)}
+          type={getCandidateStageBadgeType(candidate.stage)}
         />
       </div>
 
@@ -48,9 +45,9 @@ const CandidateCard = ({
 
       <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
         <p>Screening: {candidate.screening_score ?? candidate.ai_score ?? "-"}</p>
-        <p>Shortlist: {candidate.shortlist_decision || "-"}</p>
+        <p>Screening Shortlist: {getShortlistDecisionLabel(candidate.shortlist_decision) || "-"}</p>
         <p>Interview: {candidate.interview_score ?? "-"}</p>
-        <p>Final: {candidate.final_decision || "-"}</p>
+        <p>Final: {getFinalDecisionLabel(candidate.final_decision) || "-"}</p>
       </div>
 
       <div className="flex flex-wrap gap-2 pt-2">
@@ -66,9 +63,9 @@ const CandidateCard = ({
           className="px-3 py-1 text-xs"
           onClick={() => onShortlist?.(candidate)}
           loading={actionLoading}
-          disabled={!canDecide}
+          disabled={!canDecide || alreadyShortlisted}
         >
-          Shortlist
+          {alreadyShortlisted ? "Screening Shortlisted" : "Shortlist for Screening"}
         </Button>
         <Button
           variant="danger"
