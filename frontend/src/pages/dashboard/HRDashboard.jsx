@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { dashboardApi } from "@/api/dashboardApi";
 import { employeeApi } from "@/api/employeeApi";
+import RoleHero from "@/components/dashboard/RoleHero";
 import StatCard from "@/components/common/StatCard";
 import Table from "@/components/common/Table";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -29,7 +30,7 @@ const HRDashboard = () => {
       ]);
 
       setData(dashboardRes.data.stats);
-      setEmployees(employeesRes.data);
+      setEmployees(Array.isArray(employeesRes.data) ? employeesRes.data : []);
     } catch (err) {
       setError(err);
     } finally {
@@ -51,12 +52,15 @@ const HRDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-xl font-bold">HR Dashboard</h1>
-        <p className="text-sm text-gray-500">
-          Live HR metrics pulled from the database and recent employee records.
-        </p>
-      </div>
+      <RoleHero
+        title="HR Command Center"
+        subtitle="Live HR metrics pulled from the database and recent employee records."
+        actions={[
+          { to: "/employees", label: "Employee Directory" },
+          { to: "/hr/recruitment", label: "Recruitment", variant: "soft" },
+          { to: "/hr/interview", label: "Interview Desk", variant: "soft" },
+        ]}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatCard title="Open Jobs" value={data?.recruitment?.open_jobs ?? 0} />

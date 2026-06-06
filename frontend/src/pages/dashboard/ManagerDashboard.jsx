@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { dashboardApi } from "@/api/dashboardApi";
+import RoleHero from "@/components/dashboard/RoleHero";
 import StatCard from "@/components/common/StatCard";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ApiError from "@/components/common/ApiError";
@@ -59,12 +60,15 @@ const ManagerDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-xl font-bold">Manager Dashboard</h1>
-        <p className="text-sm text-gray-500">
-          Team approvals, attendance insights, and performance tracking for your direct reports.
-        </p>
-      </div>
+      <RoleHero
+        title="Manager Operations Deck"
+        subtitle="Team approvals, attendance insights, and performance tracking for your direct reports."
+        actions={[
+          { to: "/manager/approvals", label: "Approve Leaves" },
+          { to: "/manager/team", label: "Team Overview", variant: "soft" },
+          { to: "/manager/performance", label: "Performance", variant: "soft" },
+        ]}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Team Size" value={data?.team_size ?? 0} />

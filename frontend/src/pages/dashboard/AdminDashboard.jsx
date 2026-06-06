@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { dashboardApi } from "@/api/dashboardApi";
 import { analyticsApi } from "@/api/analyticsApi";
+import RoleHero from "@/components/dashboard/RoleHero";
 import StatCard from "@/components/common/StatCard";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ApiError from "@/components/common/ApiError";
@@ -77,12 +78,15 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-xl font-bold">Admin Dashboard</h1>
-        <p className="text-sm text-gray-500">
-          Company-wide analytics, employee operations, and department control in one place.
-        </p>
-      </div>
+      <RoleHero
+        title="Admin Command Center"
+        subtitle="Company-wide analytics, employee operations, and department control in one place."
+        actions={[
+          { to: "/employees", label: "Manage Employees" },
+          { to: "/admin/users", label: "Review Access", variant: "soft" },
+          { to: "/admin/departments", label: "Departments", variant: "soft" },
+        ]}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Total Employees" value={totalEmployees} />

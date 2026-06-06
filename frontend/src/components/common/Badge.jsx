@@ -3,7 +3,7 @@ import React from "react";
 /**
  * Status Badge
  */
-const Badge = ({ label, type = "default" }) => {
+const Badge = ({ label, type = "default", className = "" }) => {
   const styles = {
     success: "bg-green-100 text-green-700",
     warning: "bg-yellow-100 text-yellow-700",
@@ -13,7 +13,7 @@ const Badge = ({ label, type = "default" }) => {
   };
 
   return (
-    <span className={`px-2 py-1 text-xs rounded-full ${styles[type]}`}>
+    <span className={`px-2 py-1 text-xs rounded-full ${styles[type]} ${className}`}>
       {label}
     </span>
   );

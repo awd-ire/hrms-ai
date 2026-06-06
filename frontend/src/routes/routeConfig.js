@@ -1,4 +1,5 @@
 import React from "react";
+import { getLandingRouteByRole } from "@/utils/landingRoute";
 
 /**
  * Lazy-loaded pages (enterprise performance requirement)
@@ -177,16 +178,5 @@ export const routeConfig = [
  * Helper: get dashboard route based on role
  */
 export const getDefaultRouteByRole = (role) => {
-  switch (role) {
-    case "admin":
-      return "/admin";
-    case "senior_manager":
-      return "/manager";
-    case "hr_recruiter":
-      return "/hr";
-    case "employee":
-      return "/employee";
-    default:
-      return "/login";
-  }
+  return getLandingRouteByRole(role);
 };

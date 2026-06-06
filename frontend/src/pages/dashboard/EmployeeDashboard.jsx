@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { dashboardApi } from "@/api/dashboardApi";
+import RoleHero from "@/components/dashboard/RoleHero";
 import StatCard from "@/components/common/StatCard";
 import Badge from "@/components/common/Badge";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -42,12 +43,15 @@ const EmployeeDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-xl font-bold">My Dashboard</h1>
-        <p className="text-sm text-gray-500">
-          A quick view of your attendance, leave, payroll, and performance data.
-        </p>
-      </div>
+      <RoleHero
+        title="My Workbench"
+        subtitle="A quick view of your attendance, leave, payroll, and performance data."
+        actions={[
+          { to: "/employee/attendance", label: "Attendance" },
+          { to: "/employee/leave", label: "Leave", variant: "soft" },
+          { to: "/employee/payslips", label: "Payslips", variant: "soft" },
+        ]}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Attendance Records" value={data?.attendance_records ?? 0} />

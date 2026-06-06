@@ -2,30 +2,32 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  employeeCreateSchema,
+  employeeCreateFormSchema,
   employeeUpdateSchema,
 } from "@/validation/employeeSchemas";
 import { departmentApi } from "@/api/departmentApi";
-import { usersApi } from "@/api/usersApi";
 import Button from "@/components/common/Button";
 
 const today = new Date().toISOString().slice(0, 10);
 
-const normalizeValues = (values = {}, mode) => ({
-  user_id: values.user_id ?? "",
-  employee_code: values.employee_code ?? "",
-  first_name: values.first_name ?? "",
-  last_name: values.last_name ?? "",
-  email: values.email ?? "",
-  phone: values.phone ?? "",
-  designation: values.designation ?? "",
-  hire_date: values.hire_date ?? today,
-  salary: values.salary ?? "",
-  department_id: values.department_id ?? "",
-  manager_id: values.manager_id ?? "",
-  status: values.status ?? "active",
-  is_active: values.is_active ?? mode === "create",
-});
+const normalizeValues = (values = {}, mode) => {
+  const safeValues = values ?? {};
+
+  return {
+    employee_code: safeValues.employee_code ?? "",
+    first_name: safeValues.first_name ?? "",
+    last_name: safeValues.last_name ?? "",
+    email: safeValues.email ?? "",
+    phone: safeValues.phone ?? "",
+    designation: safeValues.designation ?? "",
+    hire_date: safeValues.hire_date ?? today,
+    salary: safeValues.salary ?? "",
+    department_id: safeValues.department_id ?? "",
+    manager_id: safeValues.manager_id ?? "",
+    status: safeValues.status ?? "active",
+    is_active: safeValues.is_active ?? mode === "create",
+  };
+};
 
 const numberValue = (value) =>
   value === "" || value === null || value === undefined
@@ -37,6 +39,8 @@ const optionalNumberValue = (value) =>
     ? null
     : Number(value);
 
+const asArray = (value) => (Array.isArray(value) ? value : []);
+
 const EmployeeForm = ({
   mode = "create",
   initialValues = null,
@@ -45,14 +49,11 @@ const EmployeeForm = ({
   submitLabel,
 }) => {
   const isEdit = mode === "edit";
-  const schema = isEdit ? employeeUpdateSchema : employeeCreateSchema;
+  const schema = isEdit ? employeeUpdateSchema : employeeCreateFormSchema;
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState([]);
-  const [users, setUsers] = useState([]);
   const [departmentLoading, setDepartmentLoading] = useState(false);
-  const [userLoading, setUserLoading] = useState(false);
   const [departmentError, setDepartmentError] = useState(null);
-  const [userError, setUserError] = useState(null);
 
   const {
     register,
@@ -76,7 +77,7 @@ const EmployeeForm = ({
 
       try {
         const res = await departmentApi.getAll();
-        setDepartments(res.data);
+        setDepartments(asArray(res.data));
       } catch (err) {
         setDepartmentError(err?.message || "Failed to load departments");
       } finally {
@@ -84,22 +85,7 @@ const EmployeeForm = ({
       }
     };
 
-    const loadUsers = async () => {
-      setUserLoading(true);
-      setUserError(null);
-
-      try {
-        const res = await usersApi.employeeCandidates();
-        setUsers(res.data);
-      } catch (err) {
-        setUserError(err?.message || "Failed to load users");
-      } finally {
-        setUserLoading(false);
-      }
-    };
-
     loadDepartments();
-    loadUsers();
   }, []);
 
   const submitHandler = async (data) => {
@@ -108,7 +94,6 @@ const EmployeeForm = ({
     try {
       const payload = {
         ...data,
-        user_id: numberValue(data.user_id),
         salary: numberValue(data.salary),
         department_id: numberValue(data.department_id),
         manager_id: optionalNumberValue(data.manager_id),
@@ -137,40 +122,12 @@ const EmployeeForm = ({
           {isEdit ? "Edit Employee" : "Add Employee"}
         </h2>
         <p className="text-xs text-gray-500">
-          User ID and Department ID must already exist in the system.
+          Department ID must already exist. This form creates a standalone
+          employee record without linking it to a login account.
         </p>
       </div>
 
       <form onSubmit={handleSubmit(submitHandler)} className="grid grid-cols-2 gap-3">
-        {!isEdit && (
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-              Linked User
-            </label>
-
-            <select
-              {...register("user_id", { setValueAs: numberValue })}
-              className={`w-full ${inputClass}`}
-              disabled={userLoading}
-            >
-              <option value="">
-                {userLoading ? "Loading users..." : "Select a user account"}
-              </option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.username} ({user.email})
-                </option>
-              ))}
-            </select>
-            {errors.user_id && (
-              <p className="text-xs text-red-600 mt-1">{errors.user_id.message}</p>
-            )}
-            {userError && (
-              <p className="text-xs text-red-600 mt-1">{userError}</p>
-            )}
-          </div>
-        )}
-
         <div>
           <input
             {...register("employee_code")}

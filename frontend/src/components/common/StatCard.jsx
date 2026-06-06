@@ -3,12 +3,12 @@ import React from "react";
 /**
  * Dashboard Stat Card
  */
-const StatCard = ({ title, value, icon, trend }) => {
+const StatCard = ({ title, value, icon, trend, className = "", valueClassName = "", iconClassName = "" }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex items-center justify-between">
+    <div className={`bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex items-center justify-between ${className}`}>
       <div>
         <p className="text-sm text-gray-500">{title}</p>
-        <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+        <h3 className={`text-xl font-bold text-gray-800 dark:text-white ${valueClassName}`}>
           {value}
         </h3>
         {trend && (
@@ -16,7 +16,7 @@ const StatCard = ({ title, value, icon, trend }) => {
         )}
       </div>
 
-      <div className="text-2xl text-blue-600">{icon}</div>
+      <div className={`text-2xl text-blue-600 ${iconClassName}`}>{icon}</div>
     </div>
   );
 };

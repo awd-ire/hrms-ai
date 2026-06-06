@@ -7,6 +7,7 @@ Create Date: 2026-06-04
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import inspect
 
 
 revision = "0007_add_interview_transcript"
@@ -15,12 +16,20 @@ branch_labels = None
 depends_on = None
 
 
+def _has_column(table_name: str, column_name: str) -> bool:
+    bind = op.get_bind()
+    inspector = inspect(bind)
+    return any(col["name"] == column_name for col in inspector.get_columns(table_name))
+
+
 def upgrade():
-    op.add_column(
-        "interviews",
-        sa.Column("transcript", sa.Text(), nullable=True),
-    )
+    if not _has_column("interviews", "transcript"):
+        op.add_column(
+            "interviews",
+            sa.Column("transcript", sa.Text(), nullable=True),
+        )
 
 
 def downgrade():
-    op.drop_column("interviews", "transcript")
+    if _has_column("interviews", "transcript"):
+        op.drop_column("interviews", "transcript")

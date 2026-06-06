@@ -12,6 +12,8 @@ export const useEmployees = (scope = "all") => {
     setError(err?.message || "Something went wrong");
   };
 
+  const asArray = (value) => (Array.isArray(value) ? value : []);
+
   const getAll = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -21,8 +23,9 @@ export const useEmployees = (scope = "all") => {
         scope === "team"
           ? await employeeApi.myTeam()
           : await employeeApi.getAll();
-      setEmployees(res.data);
-      return res.data;
+      const list = asArray(res.data);
+      setEmployees(list);
+      return list;
     } catch (err) {
       handleError(err);
     } finally {

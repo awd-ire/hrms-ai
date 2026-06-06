@@ -1,6 +1,7 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { getRoleRank, hasAnyRole } from "@/utils/roleHierarchy";
 
 /**
  * ProtectedRoute enforces authentication guard
@@ -9,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
  */
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const { isAuthenticated, loading, user } = useAuth();
+  const currentRole = user?.role;
 
   if (loading) {
     return (
@@ -23,7 +25,15 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
   }
 
   if (allowedRoles && allowedRoles.length > 0) {
-    const hasAccess = allowedRoles.includes(user?.role);
+    const mixedEmployeeRule =
+      allowedRoles.includes("employee") &&
+      allowedRoles.some((role) => role !== "employee");
+
+    const hasAccess = mixedEmployeeRule
+      ? hasAnyRole(currentRole, allowedRoles)
+      : currentRole
+        ? getRoleRank(currentRole) >= Math.min(...allowedRoles.map(getRoleRank))
+        : false;
 
     if (!hasAccess) {
       return (

@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import AppShell from "@/components/layout/AppShell";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import { useAuth } from "@/hooks/useAuth";
+import { getLandingRouteByRole } from "@/utils/landingRoute";
 
 /**
  * Pages (placeholders will be replaced by next modules)
@@ -78,6 +80,11 @@ const RoleRoute = ({ allowedRoles, element }) => {
   );
 };
 
+const LandingRoute = () => {
+  const { user } = useAuth();
+  return <Navigate to={getLandingRouteByRole(user?.role)} replace />;
+};
+
 /**
  * Main App Router
  */
@@ -100,7 +107,7 @@ const App = () => {
           {/* Protected App Shell Routes */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppShell />}>
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/" element={<LandingRoute />} />
 
               {/* Admin */}
               <Route

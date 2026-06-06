@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import { getRoleRank, hasAnyRole, hasRoleAtLeast } from "@/utils/roleHierarchy";
 
 /**
  * Role-based access control hook (RBAC)
@@ -22,16 +23,19 @@ export const usePermissions = () => {
    * Permission checker
    */
   const can = (allowedRoles = []) => {
-    if (!role) return false;
-    return allowedRoles.includes(role);
+    return hasAnyRole(role, allowedRoles);
   };
+
+  const canAtLeast = (minimumRole) => hasRoleAtLeast(role, minimumRole);
 
   return {
     role,
+    roleRank: getRoleRank(role),
     isAdmin,
     isManager,
     isHR,
     isEmployee,
-    can
+    can,
+    canAtLeast,
   };
 };

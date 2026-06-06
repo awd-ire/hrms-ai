@@ -299,6 +299,8 @@ const CandidatePortal = () => {
   const resultSummary = result?.latest_result || result?.evaluation || null;
   const resultDecision = getCandidatePortalDecisionLabel(resultCandidate);
   const totalInterviewQuestions = liveSession?.total_questions || resultInterview?.total_questions || 0;
+  const openJobsCount = jobs.length;
+  const hasCurrentResult = Boolean(result);
 
   const setCandidateDetails = (candidate) => {
     setStatusForm({ candidate_id: String(candidate.id), email: candidate.email });
@@ -541,41 +543,94 @@ const CandidatePortal = () => {
   if (error && !result) return <ApiError error={{ message: displayError }} />;
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-blue-900 to-cyan-800 px-6 py-8 text-white shadow-lg">
-        <p className="text-xs uppercase tracking-[0.3em] text-cyan-200">Candidate Portal</p>
-        <h1 className="mt-2 text-3xl font-bold">Apply, interview, and track your HR review status</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-200">
-          Submit an application, record an interview response when HR unlocks it, and check screening or interview results from the same portal.
-        </p>
+    <div className="relative space-y-6 overflow-hidden rounded-[2rem] border border-slate-200/80 bg-slate-50/80 p-4 shadow-[0_24px_90px_-40px_rgba(15,23,42,0.45)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/60 md:p-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.22),_transparent_36%),radial-gradient(circle_at_top_right,_rgba(99,102,241,0.18),_transparent_32%),linear-gradient(135deg,_rgba(15,23,42,0.92),_rgba(14,116,144,0.78))] opacity-95" />
+
+      <div className="relative overflow-hidden rounded-[1.75rem] border border-white/15 bg-slate-950/90 px-6 py-8 text-white shadow-2xl ring-1 ring-white/10 md:px-8">
+        <div className="absolute inset-0 opacity-70 [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:32px_32px]" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl space-y-4">
+            <p className="text-xs uppercase tracking-[0.35em] text-cyan-200">Candidate Portal</p>
+            <div className="space-y-3">
+              <h1 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
+                Apply, interview, and follow your progress in one polished workspace
+              </h1>
+              <p className="max-w-2xl text-sm leading-6 text-slate-200 md:text-base">
+                Submit your application, answer AI interview prompts when they are available, and check the latest screening outcome without leaving the portal.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-cyan-100">
+                {openJobsCount} open roles
+              </span>
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-cyan-100">
+                Guided application flow
+              </span>
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-cyan-100">
+                Voice interview ready
+              </span>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3 lg:w-[22rem] lg:grid-cols-1">
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.25em] text-cyan-200">Jobs</div>
+              <div className="mt-2 text-2xl font-semibold text-white">{openJobsCount}</div>
+              <p className="mt-1 text-xs leading-5 text-slate-300">Open jobs available to apply for right now.</p>
+            </div>
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.25em] text-cyan-200">Result</div>
+              <div className="mt-2 text-2xl font-semibold text-white">{hasCurrentResult ? "Ready" : "Pending"}</div>
+              <p className="mt-1 text-xs leading-5 text-slate-300">Your latest status appears as soon as it is available.</p>
+            </div>
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.25em] text-cyan-200">Interview</div>
+              <div className="mt-2 text-2xl font-semibold text-white">{liveSession?.completed ? "Done" : "Live"}</div>
+              <p className="mt-1 text-xs leading-5 text-slate-300">Practice through a structured AI interview when enabled.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="relative grid gap-3 md:grid-cols-3">
         {TAB_CONFIG.map((tab) => (
           <button
             key={tab.id}
-            className={`rounded-xl px-4 py-3 text-left shadow transition ${
+            className={`group rounded-2xl border px-4 py-4 text-left shadow-sm transition-all duration-200 ${
               activeTab === tab.id
-                ? "bg-blue-600 text-white"
-                : "bg-white text-slate-700 dark:bg-gray-800 dark:text-gray-100"
+                ? "border-cyan-400/60 bg-white text-slate-900 shadow-lg shadow-cyan-500/10 ring-2 ring-cyan-200/70 dark:border-cyan-400/40 dark:bg-slate-900 dark:text-white dark:ring-cyan-400/20"
+                : "border-slate-200 bg-white/80 text-slate-700 hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-100"
             }`}
             onClick={() => setActiveTab(tab.id)}
             type="button"
           >
-            <div className="text-xs uppercase tracking-wide opacity-70">{tab.label}</div>
-            <div className="font-semibold">{tab.title}</div>
+            <div
+              className={`text-xs uppercase tracking-[0.25em] ${
+                activeTab === tab.id ? "text-cyan-500 dark:text-cyan-300" : "text-slate-400"
+              }`}
+            >
+              {tab.label}
+            </div>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <div className="font-semibold">{tab.title}</div>
+              <span
+                className={`inline-flex h-2.5 w-2.5 rounded-full transition ${
+                  activeTab === tab.id ? "bg-cyan-500" : "bg-slate-300 dark:bg-slate-600"
+                }`}
+              />
+            </div>
           </button>
         ))}
       </div>
 
       {activeTab === "result" && result && (
-        <div className="mx-auto w-full max-w-6xl rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-2xl ring-1 ring-slate-200/60 backdrop-blur dark:border-slate-700 dark:bg-slate-900/95 dark:ring-slate-700/40">
+        <div className="mx-auto w-full max-w-6xl rounded-[1.75rem] border border-slate-200/80 bg-white/95 p-6 shadow-[0_20px_70px_-38px_rgba(15,23,42,0.45)] ring-1 ring-slate-200/60 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 dark:ring-slate-700/40">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="space-y-2">
               <p className="text-xs uppercase tracking-[0.35em] text-blue-600 dark:text-blue-300">
                 Result Center
               </p>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-slate-700 dark:text-slate-100">
                 Your latest screening result
               </h2>
               <p className="max-w-2xl text-sm text-slate-600 dark:text-slate-300">
@@ -605,11 +660,11 @@ const CandidatePortal = () => {
 
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {resultCandidate && (
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-5 shadow-sm dark:border-slate-700 dark:from-slate-800 dark:to-slate-900">
                 <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Candidate
                 </div>
-                <div className="mt-2 text-xl font-semibold text-slate-900 dark:text-white">
+                <div className="mt-2 text-xl font-semibold text-slate-700 dark:text-slate-100">
                   {resultCandidate.full_name}
                 </div>
                 <div className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -626,11 +681,11 @@ const CandidatePortal = () => {
             )}
 
             {resultSummary && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm dark:border-slate-700 dark:from-slate-800 dark:to-slate-900">
                 <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Result summary
                 </div>
-                <div className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
+                <div className="mt-3 text-3xl font-bold text-slate-700 dark:text-slate-100">
                   {resultSummary.score ?? resultSummary.ai_score ?? "N/A"}
                 </div>
                 <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
@@ -642,31 +697,31 @@ const CandidatePortal = () => {
               </div>
             )}
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-5 shadow-sm dark:border-slate-700 dark:from-slate-800 dark:to-slate-900">
               <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Decision
               </div>
               <div className="mt-3 space-y-3 text-sm text-slate-600 dark:text-slate-300">
-                <div className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
+                <div className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
                   <span>Shortlist</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">
+                  <span className="font-semibold text-slate-700 dark:text-slate-100">
                     {result.latest_result?.shortlist_decision === "shortlisted"
                       ? "Shortlisted"
                       : getShortlistDecisionLabel(result.latest_result?.shortlist_decision) || "Pending"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
+                <div className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
                   <span>Final</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">
+                  <span className="font-semibold text-slate-700 dark:text-slate-100">
                     {result.latest_result?.shortlist_decision === "shortlisted"
                       ? "Shortlisted"
                       : getFinalDecisionLabel(result.latest_result?.final_decision) || "Pending"}
                   </span>
                 </div>
                 {resultInterview && (
-                  <div className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
+                  <div className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
                     <span>Interview</span>
-                    <span className="font-semibold text-slate-900 dark:text-white">
+                    <span className="font-semibold text-slate-700 dark:text-slate-100">
                       {resultInterview.status}
                     </span>
                   </div>
@@ -676,26 +731,26 @@ const CandidatePortal = () => {
           </div>
 
           {resultInterview && (
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm dark:border-slate-700 dark:bg-slate-800">
+            <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Interview details
               </div>
               <div className="mt-3 grid gap-3 md:grid-cols-3">
                 <div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">Round</div>
-                  <div className="font-medium text-slate-900 dark:text-white">
+                  <div className="font-medium text-slate-700 dark:text-slate-100">
                     {resultInterview.interview_round}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">Scheduled</div>
-                  <div className="font-medium text-slate-900 dark:text-white">
+                  <div className="font-medium text-slate-700 dark:text-slate-100">
                     {resultInterview.scheduled_date}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">Status</div>
-                  <div className="font-medium text-slate-900 dark:text-white">
+                  <div className="font-medium text-slate-700 dark:text-slate-100">
                     {resultInterview.status}
                   </div>
                 </div>
@@ -714,12 +769,17 @@ const CandidatePortal = () => {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1.3fr_0.9fr]">
-        <div className="rounded-2xl bg-white p-6 shadow dark:bg-gray-800">
+        <div className="rounded-[1.75rem] border border-slate-200/80 bg-white/95 p-6 shadow-[0_20px_70px_-40px_rgba(15,23,42,0.5)] backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
           {activeTab === "apply" && (
-            <form className="space-y-4" onSubmit={submitApplication}>
-              <h2 className="text-lg font-semibold">Apply for a job</h2>
+            <form className="space-y-5" onSubmit={submitApplication}>
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Apply for a job</h2>
+                <p className="text-sm leading-6 text-slate-500 dark:text-slate-300">
+                  Fill out your details, upload your resume, and we will create your candidate record automatically.
+                </p>
+              </div>
               <select
-                className="w-full rounded border px-3 py-2"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                 required
                 value={applyForm.job_posting_id}
                 onChange={(e) => setApplyForm({ ...applyForm, job_posting_id: e.target.value })}
@@ -734,14 +794,14 @@ const CandidatePortal = () => {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <input
-                  className="rounded border px-3 py-2"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                   placeholder="Full name"
                   required
                   value={applyForm.full_name}
                   onChange={(e) => setApplyForm({ ...applyForm, full_name: e.target.value })}
                 />
                 <input
-                  className="rounded border px-3 py-2"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                   placeholder="Email"
                   type="email"
                   required
@@ -752,13 +812,13 @@ const CandidatePortal = () => {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <input
-                  className="rounded border px-3 py-2"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                   placeholder="Phone"
                   value={applyForm.phone}
                   onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value })}
                 />
                 <input
-                  className="rounded border px-3 py-2"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                   placeholder="Experience years"
                   type="number"
                   step="0.1"
@@ -771,7 +831,7 @@ const CandidatePortal = () => {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <input
-                  className="rounded border px-3 py-2"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                   placeholder="Current company"
                   value={applyForm.current_company}
                   onChange={(e) =>
@@ -779,7 +839,7 @@ const CandidatePortal = () => {
                   }
                 />
                 <input
-                  className="rounded border px-3 py-2"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                   placeholder="Current role"
                   value={applyForm.current_role}
                   onChange={(e) => setApplyForm({ ...applyForm, current_role: e.target.value })}
@@ -787,19 +847,19 @@ const CandidatePortal = () => {
               </div>
 
               <input
-                className="rounded border px-3 py-2"
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                 type="date"
                 value={applyForm.applied_date}
                 onChange={(e) => setApplyForm({ ...applyForm, applied_date: e.target.value })}
               />
 
-              <label className="block rounded border border-dashed p-4">
-                <div className="text-sm font-medium">Resume upload</div>
-                <div className="mt-1 text-xs text-gray-500">
+              <label className="block rounded-3xl border border-dashed border-cyan-200 bg-cyan-50/70 p-4 dark:border-cyan-400/20 dark:bg-cyan-400/5">
+                <div className="text-sm font-medium text-slate-700 dark:text-slate-100">Resume upload</div>
+                <div className="mt-1 text-xs text-slate-500 dark:text-slate-300">
                   PDF, DOC, DOCX, or TXT up to 5 MB.
                 </div>
                 <input
-                  className="mt-3 w-full"
+                  className="mt-3 w-full text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-cyan-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-cyan-700 dark:text-slate-300"
                   type="file"
                   accept=".pdf,.doc,.docx,.txt"
                   required
@@ -807,31 +867,36 @@ const CandidatePortal = () => {
                     setApplyForm({ ...applyForm, resume: e.target.files?.[0] || null })
                   }
                 />
-                <div className="mt-2 text-xs text-gray-500">Selected file: {selectedApplyFile}</div>
+                <div className="mt-2 text-xs text-slate-500 dark:text-slate-300">Selected file: {selectedApplyFile}</div>
               </label>
 
-              <button className="rounded bg-blue-600 px-4 py-2 text-white" type="submit">
+              <button
+                className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:from-cyan-500 hover:to-blue-500 focus:outline-none focus:ring-4 focus:ring-cyan-200 dark:focus:ring-cyan-400/20"
+                type="submit"
+              >
                 Submit Application
               </button>
             </form>
           )}
 
           {activeTab === "interview" && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">AI interview</h2>
-              <p className="text-sm text-gray-500">
-                After your interview is scheduled, start the session and the AI will ask role-based questions one by one.
-              </p>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">AI interview</h2>
+                <p className="text-sm leading-6 text-slate-500 dark:text-slate-300">
+                  After your interview is scheduled, start the session and the AI will ask role-based questions one by one.
+                </p>
+              </div>
 
-              <div className="rounded-xl border bg-slate-50 p-4 dark:bg-slate-900">
+              <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 shadow-sm dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold">Interview session</h3>
-                    <p className="text-xs text-gray-500">
+                    <h3 className="font-semibold text-slate-900 dark:text-white">Interview session</h3>
+                    <p className="text-xs leading-5 text-slate-500 dark:text-slate-300">
                       This interview uses the job role, requirements, and your resume memory to choose questions.
                     </p>
                   </div>
-                  <label className="flex items-center gap-2 text-xs text-gray-600">
+                  <label className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                     <input
                       checked={voiceEnabled}
                       type="checkbox"
@@ -841,16 +906,16 @@ const CandidatePortal = () => {
                   </label>
                 </div>
 
-                <form className="mt-4 space-y-4" onSubmit={startLiveInterview}>
+                <form className="mt-5 space-y-4" onSubmit={startLiveInterview}>
                   <input
-                    className="w-full rounded border px-3 py-2"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                     placeholder="Candidate ID"
                     required
                     value={liveForm.candidate_id}
                     onChange={(e) => setLiveForm({ ...liveForm, candidate_id: e.target.value })}
                   />
                   <input
-                    className="w-full rounded border px-3 py-2"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                     placeholder="Email used for application"
                     type="email"
                     required
@@ -858,58 +923,61 @@ const CandidatePortal = () => {
                     onChange={(e) => setLiveForm({ ...liveForm, email: e.target.value })}
                   />
 
-                  <button className="rounded bg-blue-600 px-4 py-2 text-white" type="submit">
+                  <button
+                    className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:from-cyan-500 hover:to-blue-500 focus:outline-none focus:ring-4 focus:ring-cyan-200 dark:focus:ring-cyan-400/20"
+                    type="submit"
+                  >
                     Start AI interview
                   </button>
                 </form>
 
                 {liveSession && (
-                  <div className="mt-4 rounded-lg border bg-white p-3 text-sm dark:bg-gray-800">
-                    <div className="font-medium">Session {liveSession.session_id}</div>
-                    <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-950">
+                    <div className="font-medium text-slate-900 dark:text-white">Session {liveSession.session_id}</div>
+                    <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                       Question {liveSession.round_number} of {totalInterviewQuestions || "?"}
                       {liveSession.completed ? " - completed" : ""}
                     </div>
                     {liveSession.completed && (
-                      <div className="mt-2 rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                      <div className="mt-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-200">
                         AI interview completed. Your result and status are now visible in the Result tab.
                       </div>
                     )}
 
-                    <div className="mt-4 rounded border bg-slate-50 p-3 dark:bg-slate-900">
-                      <div className="font-medium text-slate-900 dark:text-slate-100">Current question</div>
-                      <div className="mt-1 whitespace-pre-wrap text-slate-900 dark:text-slate-100">
+                    <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
+                      <div className="font-medium text-slate-700 dark:text-slate-100">Current question</div>
+                      <div className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-100">
                         {liveQuestion || "No active question yet."}
                       </div>
                     </div>
 
-                    <div className="mt-3 rounded border bg-slate-50 p-3 dark:bg-slate-900">
-                      <div className="font-medium text-slate-900 dark:text-slate-100">Interview progress</div>
+                    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
+                      <div className="font-medium text-slate-700 dark:text-slate-100">Interview progress</div>
                       <div className="mt-1 text-xs text-slate-600 dark:text-slate-300">
                         Total questions: {totalInterviewQuestions || "Not available yet"}
                       </div>
                     </div>
 
-                    <div className="mt-3 rounded border bg-slate-50 p-3 dark:bg-slate-900">
-                      <div className="font-medium text-slate-900 dark:text-slate-100">Transcript</div>
-                      <div className="mt-1 whitespace-pre-wrap text-slate-900 dark:text-slate-100">
+                    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
+                      <div className="font-medium text-slate-700 dark:text-slate-100">Transcript</div>
+                      <div className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-100">
                         {liveTranscript || "No transcript yet."}
                       </div>
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-3">
                       {!recording ? (
-                      <button
-                        className="rounded bg-slate-900 px-4 py-2 text-white"
-                        type="button"
-                        onClick={() => startRecording("live")}
-                        disabled={!!liveSession.completed || questionSpeaking || questionCooldown}
-                      >
+                        <button
+                          className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
+                          type="button"
+                          onClick={() => startRecording("live")}
+                          disabled={!!liveSession.completed || questionSpeaking || questionCooldown}
+                        >
                           {questionSpeaking || questionCooldown ? "Wait for question to finish" : "Start recording"}
-                      </button>
+                        </button>
                       ) : (
                         <button
-                          className="rounded bg-red-600 px-4 py-2 text-white"
+                          className="inline-flex items-center justify-center rounded-2xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-500"
                           type="button"
                           onClick={stopRecording}
                         >
@@ -918,7 +986,7 @@ const CandidatePortal = () => {
                       )}
 
                       <button
-                        className="rounded bg-blue-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-blue-300"
+                        className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-cyan-500 hover:to-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
                         onClick={submitRecordedAnswer}
                         disabled={!answerReady || recording || submittingAnswer || !!liveSession.completed}
@@ -928,14 +996,14 @@ const CandidatePortal = () => {
                     </div>
 
                     {submittingAnswer && (
-                      <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                      <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-200">
                         <span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
                         Transcribing and generating next question...
                       </div>
                     )}
 
                     {answerReady && !recording && (
-                      <div className="mt-3 rounded border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700">
+                      <div className="mt-3 rounded-2xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-200">
                         Answer ready for submission. Press <span className="font-semibold">Submit Answer</span> to send it and load the next question.
                       </div>
                     )}
@@ -946,68 +1014,86 @@ const CandidatePortal = () => {
           )}
 
           {activeTab === "result" && (
-            <form className="space-y-4" onSubmit={loadStatus}>
-              <h2 className="text-lg font-semibold">View result</h2>
-              <p className="text-sm text-gray-500">
-                Enter the candidate details from your application to load the latest screening or interview status.
-              </p>
+            <form className="space-y-5" onSubmit={loadStatus}>
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">View result</h2>
+                <p className="text-sm leading-6 text-slate-500 dark:text-slate-300">
+                  Enter the candidate details from your application to load the latest screening or interview status.
+                </p>
+              </div>
               <input
-                className="w-full rounded border px-3 py-2"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                 placeholder="Candidate ID"
                 required
                 value={statusForm.candidate_id}
                 onChange={(e) => setStatusForm({ ...statusForm, candidate_id: e.target.value })}
               />
               <input
-                className="w-full rounded border px-3 py-2"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-400/20"
                 placeholder="Email used for application"
                 type="email"
                 required
                 value={statusForm.email}
                 onChange={(e) => setStatusForm({ ...statusForm, email: e.target.value })}
               />
-              <button className="rounded bg-blue-600 px-4 py-2 text-white" type="submit">
+              <button
+                className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:from-cyan-500 hover:to-blue-500 focus:outline-none focus:ring-4 focus:ring-cyan-200 dark:focus:ring-cyan-400/20"
+                type="submit"
+              >
                 Load Result
               </button>
             </form>
           )}
 
           {success && (
-            <p className="mt-4 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+            <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-200">
               {success}
             </p>
           )}
           {error && (
-            <p className="mt-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-200">
               {displayError}
             </p>
           )}
         </div>
 
-        <div className="space-y-4 rounded-2xl bg-white p-6 shadow dark:bg-gray-800">
-          <h2 className="text-lg font-semibold">Open Jobs</h2>
+        <div className="space-y-4 rounded-[1.75rem] border border-slate-200/80 bg-white/95 p-6 shadow-[0_20px_70px_-40px_rgba(15,23,42,0.5)] backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Open Jobs</h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+                Browse current openings before applying.
+              </p>
+            </div>
+            <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-200">
+              {openJobsCount} roles
+            </span>
+          </div>
           <div className="space-y-3">
             {jobs.map((job) => (
-              <div key={job.id} className="rounded-xl border p-4">
-                <div className="font-semibold">{job.title}</div>
-                <div className="text-sm text-gray-500">
+              <div
+                key={job.id}
+                className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:from-slate-900 dark:to-slate-950"
+              >
+                <div className="font-semibold text-slate-900 dark:text-white">{job.title}</div>
+                <div className="text-sm text-slate-500 dark:text-slate-300">
                   {job.department?.name || `Department #${job.department_id}`}
                 </div>
-                <div className="mt-2 text-sm text-gray-600">{job.description}</div>
+                <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{job.description}</div>
               </div>
             ))}
             {jobs.length === 0 && (
-              <p className="text-sm text-gray-500">No open jobs are available right now.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-300">No open jobs are available right now.</p>
             )}
           </div>
 
-          <div className="rounded-xl border bg-slate-50 p-4 dark:bg-slate-900">
-            <h3 className="font-semibold">Candidate details</h3>
-            <div className="mt-2 text-sm text-gray-600">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
+            <h3 className="font-semibold text-slate-900 dark:text-white">Candidate details</h3>
+            <div className="mt-2 text-sm text-slate-600 dark:text-slate-300">
               Candidate ID: {candidateContext.candidate_id || "Not set yet"}
             </div>
-            <div className="text-sm text-gray-600">Email: {candidateContext.email || "Not set yet"}</div>
-            <div className="mt-2 text-xs text-gray-500">
+            <div className="text-sm text-slate-600 dark:text-slate-300">Email: {candidateContext.email || "Not set yet"}</div>
+            <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
               Once you submit an application, we will reuse those details for interview and result lookups.
             </div>
           </div>

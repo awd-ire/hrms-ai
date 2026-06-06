@@ -20,6 +20,7 @@ from routers.ai import router as ai_router
 from routers.public import router as public_router
 from routers.dashboard import router as dashboard_router
 from routers.analytics import router as analytics_router
+from routers.ui_events import router as ui_events_router
 from services.bootstrap_service import bootstrap_demo_data
 from database import SessionLocal, engine
 from core.audit_logger import log_ai_interview_event
@@ -52,6 +53,7 @@ app.include_router(ai_router)
 app.include_router(public_router)
 app.include_router(dashboard_router)
 app.include_router(analytics_router)
+app.include_router(ui_events_router)
 
 
 def ensure_interview_transcript_column() -> None:

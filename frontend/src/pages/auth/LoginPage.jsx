@@ -4,24 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/validation/authSchemas";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
-/**
- * Role-based redirect mapping (strict backend roles)
- */
-const getRedirectPath = (role) => {
-  switch (role) {
-    case "admin":
-      return "/admin";
-    case "senior_manager":
-      return "/manager";
-    case "hr_recruiter":
-      return "/hr";
-    case "employee":
-      return "/employee";
-    default:
-      return "/login";
-  }
-};
+import { getLandingRouteByRole } from "@/utils/landingRoute";
 
 const LoginPage = () => {
   const { login, user, isAuthenticated, loading, error } = useAuth();
@@ -41,7 +24,7 @@ const LoginPage = () => {
    */
   useEffect(() => {
     if (isAuthenticated && user?.role) {
-      navigate(getRedirectPath(user.role), { replace: true });
+      navigate(getLandingRouteByRole(user.role), { replace: true });
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -50,7 +33,7 @@ const LoginPage = () => {
 
     if (res?.success) {
       const role = res.user?.role || user?.role || "employee";
-      navigate(getRedirectPath(role), { replace: true });
+      navigate(getLandingRouteByRole(role), { replace: true });
     }
   };
 

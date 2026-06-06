@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
+import { useAuth } from "@/hooks/useAuth";
+import { getRoleTheme } from "@/utils/roleTheme";
 
 /**
  * AppShell defines global layout structure:
@@ -9,12 +11,14 @@ import Topbar from "@/components/layout/Topbar";
  */
 const AppShell = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
+  const theme = getRoleTheme(user?.role);
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="h-screen flex bg-gray-100 dark:bg-gray-900">
+    <div className={`h-screen flex ${theme.shellClass}`}>
       {/* Sidebar */}
       <Sidebar open={sidebarOpen} onClose={closeSidebar} />
 

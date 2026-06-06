@@ -15,6 +15,12 @@ ROLE_EMPLOYEE = "employee"
 
 ALL_ROLES = [ROLE_ADMIN, ROLE_MANAGER, ROLE_HR, ROLE_EMPLOYEE]
 PRIVILEGED_EMPLOYEE_ROLES = [ROLE_ADMIN, ROLE_MANAGER, ROLE_HR]
+ROLE_RANK = {
+    ROLE_EMPLOYEE: 0,
+    ROLE_HR: 1,
+    ROLE_MANAGER: 2,
+    ROLE_ADMIN: 3,
+}
 
 
 class RoleChecker:
@@ -35,25 +41,39 @@ class RoleChecker:
         return current_user
 
 
+class RoleAtLeastChecker:
+
+    def __init__(self, minimum_role: str):
+        self.minimum_role = minimum_role
+
+    def __call__(
+        self,
+        current_user: User = Depends(get_current_user),
+    ) -> User:
+        if ROLE_RANK.get(current_user.role, -1) < ROLE_RANK.get(self.minimum_role, -1):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions",
+            )
+
+        return current_user
+
+
 Authenticated = RoleChecker(ALL_ROLES)
 AdminOnly = RoleChecker([ROLE_ADMIN])
 ManagerOnly = RoleChecker([ROLE_MANAGER])
 HROnly = RoleChecker([ROLE_HR])
 EmployeeOnly = RoleChecker([ROLE_EMPLOYEE])
 
-AdminOrManager = RoleChecker([ROLE_ADMIN, ROLE_MANAGER])
-AdminOrHR = RoleChecker([ROLE_ADMIN, ROLE_HR])
-AdminOrManagerOrHR = RoleChecker(
-    [ROLE_ADMIN, ROLE_MANAGER, ROLE_HR]
-)
-ManagerOrHR = RoleChecker([ROLE_MANAGER, ROLE_HR])
-HROrAdmin = RoleChecker([ROLE_HR, ROLE_ADMIN])
-ManagerOrAdmin = RoleChecker([ROLE_MANAGER, ROLE_ADMIN])
+AdminOrManager = RoleAtLeastChecker(ROLE_MANAGER)
+AdminOrHR = RoleAtLeastChecker(ROLE_HR)
+AdminOrManagerOrHR = RoleAtLeastChecker(ROLE_HR)
+ManagerOrHR = RoleAtLeastChecker(ROLE_HR)
+HROrAdmin = RoleAtLeastChecker(ROLE_HR)
+ManagerOrAdmin = RoleAtLeastChecker(ROLE_MANAGER)
 EmployeeOrAdmin = RoleChecker([ROLE_EMPLOYEE, ROLE_ADMIN])
-HROrManager = RoleChecker([ROLE_HR, ROLE_MANAGER])
-InterviewerRoles = RoleChecker(
-    [ROLE_ADMIN, ROLE_MANAGER, ROLE_HR]
-)
+HROrManager = RoleAtLeastChecker(ROLE_HR)
+InterviewerRoles = RoleAtLeastChecker(ROLE_HR)
 
 
 def is_admin(user: User) -> bool:

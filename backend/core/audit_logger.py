@@ -6,31 +6,30 @@ from threading import Lock
 from typing import Any
 
 
-_LOGGER_NAME = "hrms.ai_interview"
 _LOG_DIR = Path(__file__).resolve().parents[1] / "logs"
-_LOG_FILE = _LOG_DIR / "ai_interview.log"
 _LOCK = Lock()
-_LOGGER: logging.Logger | None = None
+_LOGGERS: dict[str, logging.Logger] = {}
 
 
-def _ensure_logger() -> logging.Logger:
-    global _LOGGER
-
+def _get_logger(name: str, file_name: str) -> logging.Logger:
     with _LOCK:
-        if _LOGGER is not None:
-            return _LOGGER
+        if name in _LOGGERS:
+            return _LOGGERS[name]
 
         _LOG_DIR.mkdir(parents=True, exist_ok=True)
-        logger = logging.getLogger(_LOGGER_NAME)
+        logger = logging.getLogger(name)
         logger.setLevel(logging.INFO)
         logger.propagate = False
 
+        log_file = _LOG_DIR / file_name
+
         if not any(
-            isinstance(handler, RotatingFileHandler) and Path(getattr(handler, "baseFilename", "")) == _LOG_FILE
+            isinstance(handler, RotatingFileHandler)
+            and Path(getattr(handler, "baseFilename", "")) == log_file
             for handler in logger.handlers
         ):
             handler = RotatingFileHandler(
-                _LOG_FILE,
+                log_file,
                 maxBytes=1_000_000,
                 backupCount=5,
                 encoding="utf-8",
@@ -43,12 +42,12 @@ def _ensure_logger() -> logging.Logger:
             )
             logger.addHandler(handler)
 
-        _LOGGER = logger
+        _LOGGERS[name] = logger
         return logger
 
 
 def log_ai_interview_event(action: str, **details: Any) -> None:
-    logger = _ensure_logger()
+    logger = _get_logger("hrms.ai_interview", "ai_interview.log")
     payload = {
         "action": action,
         **details,
@@ -57,5 +56,19 @@ def log_ai_interview_event(action: str, **details: Any) -> None:
 
 
 def get_ai_interview_log_path() -> Path:
-    _ensure_logger()
-    return _LOG_FILE
+    _get_logger("hrms.ai_interview", "ai_interview.log")
+    return _LOG_DIR / "ai_interview.log"
+
+
+def log_ui_click_event(action: str, **details: Any) -> None:
+    logger = _get_logger("hrms.ui_clicks", "ui_clicks.log")
+    payload = {
+        "action": action,
+        **details,
+    }
+    logger.info(json.dumps(payload, ensure_ascii=False, default=str))
+
+
+def get_ui_click_log_path() -> Path:
+    _get_logger("hrms.ui_clicks", "ui_clicks.log")
+    return _LOG_DIR / "ui_clicks.log"

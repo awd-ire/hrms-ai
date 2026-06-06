@@ -17,7 +17,7 @@ const ChatMessage = ({ message }) => {
         className={`max-w-[70%] p-2 rounded-lg text-sm shadow ${
           isUser
             ? "bg-blue-500 text-white"
-            : "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+            : "bg-gray-200 dark:bg-gray-700 text-slate-700 dark:text-slate-100"
         }`}
       >
         <p>{message.text}</p>

@@ -86,7 +86,7 @@ class Employee(Base):
         Integer,
         ForeignKey("users.id"),
         unique=True,
-        nullable=False
+        nullable=True
     )
 
     department_id = Column(

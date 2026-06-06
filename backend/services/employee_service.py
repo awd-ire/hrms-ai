@@ -83,17 +83,18 @@ class EmployeeService:
         if existing_email:
             raise ValueError("Employee email already exists")
 
-        user = db.query(User).filter(User.id == payload.user_id).first()
-        if not user:
-            raise ValueError("User not found")
+        if payload.user_id is not None:
+            user = db.query(User).filter(User.id == payload.user_id).first()
+            if not user:
+                raise ValueError("User not found")
 
-        existing = (
-            db.query(Employee)
-            .filter(Employee.user_id == payload.user_id)
-            .first()
-        )
-        if existing:
-            raise ValueError("Employee profile already exists for this user")
+            existing = (
+                db.query(Employee)
+                .filter(Employee.user_id == payload.user_id)
+                .first()
+            )
+            if existing:
+                raise ValueError("Employee profile already exists for this user")
 
         department = (
             db.query(Department)

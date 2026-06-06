@@ -20,7 +20,7 @@ class EmployeeBase(BaseModel):
 
 
 class EmployeeCreate(EmployeeBase):
-    user_id: int
+    user_id: Optional[int] = None
 
 
 class EmployeeUpdate(BaseModel):
@@ -44,7 +44,7 @@ class EmployeeResponse(EmployeeBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    user_id: int
+    user_id: Optional[int] = None
     status: str
     is_active: bool
     profile_image: Optional[str] = None

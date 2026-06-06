@@ -6,7 +6,7 @@ import { z } from "zod";
  */
 
 export const employeeCreateSchema = z.object({
-  user_id: z.number(),
+  user_id: z.number().optional(),
   employee_code: z.string().min(1),
   first_name: z.string().min(1),
   last_name: z.string().min(1),
@@ -19,6 +19,10 @@ export const employeeCreateSchema = z.object({
   manager_id: z.number().nullable().optional(),
   status: z.string().optional(),
   is_active: z.boolean().optional()
+});
+
+export const employeeCreateFormSchema = employeeCreateSchema.omit({
+  user_id: true
 });
 
 export const employeeUpdateSchema = employeeCreateSchema.partial();
