@@ -8,7 +8,7 @@ const StatCard = ({ title, value, icon, trend, className = "", valueClassName = 
     <div className={`bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex items-center justify-between ${className}`}>
       <div>
         <p className="text-sm text-gray-500">{title}</p>
-        <h3 className={`text-xl font-bold text-gray-800 dark:text-white ${valueClassName}`}>
+        <h3 className={`text-xl font-bold text-slate-700 dark:text-white ${valueClassName}`}>
           {value}
         </h3>
         {trend && (

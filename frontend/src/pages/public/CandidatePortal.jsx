@@ -47,6 +47,8 @@ const pickRecordingMimeType = () => {
     "audio/webm",
     "audio/ogg;codecs=opus",
     "audio/ogg",
+    "audio/mp4",
+    "audio/mpeg",
   ];
 
   return candidates.find((type) => MediaRecorder.isTypeSupported?.(type)) || "audio/webm";
@@ -54,18 +56,42 @@ const pickRecordingMimeType = () => {
 
 const blobToFileName = (blob) => {
   if (blob?.type?.includes("wav")) return "answer.wav";
+  if (blob?.type?.includes("mpeg")) return "answer.mp3";
+  if (blob?.type?.includes("mp4")) return "answer.m4a";
   if (blob?.type?.includes("ogg")) return "answer.ogg";
   return "answer.webm";
 };
 
-const encodeAudioBufferToWav = (audioBuffer) => {
-  const channels = Math.max(1, audioBuffer.numberOfChannels);
-  const sampleRate = audioBuffer.sampleRate;
-  const input = audioBuffer.getChannelData(0);
-  const pcm = new Int16Array(input.length);
+const formatFileSize = (bytes) => {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "0 B";
+  }
 
-  for (let i = 0; i < input.length; i += 1) {
-    const sample = Math.max(-1, Math.min(1, input[i]));
+  const units = ["B", "KB", "MB", "GB"];
+  let size = bytes;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+};
+
+const formatDuration = (seconds) => {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return "0.0s";
+  }
+
+  return `${seconds.toFixed(1)}s`;
+};
+
+const encodeFloat32ToWav = (samples, sampleRate) => {
+  const pcm = new Int16Array(samples.length);
+
+  for (let i = 0; i < samples.length; i += 1) {
+    const sample = Math.max(-1, Math.min(1, samples[i]));
     pcm[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
   }
 
@@ -83,10 +109,10 @@ const encodeAudioBufferToWav = (audioBuffer) => {
   writeString(12, "fmt ");
   view.setUint32(16, 16, true);
   view.setUint16(20, 1, true);
-  view.setUint16(22, channels, true);
+  view.setUint16(22, 1, true);
   view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * channels * 2, true);
-  view.setUint16(32, channels * 2, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
   view.setUint16(34, 16, true);
   writeString(36, "data");
   view.setUint32(40, pcm.length * 2, true);
@@ -98,28 +124,6 @@ const encodeAudioBufferToWav = (audioBuffer) => {
   }
 
   return new Blob([buffer], { type: "audio/wav" });
-};
-
-const convertRecordingToWav = async (blob) => {
-  const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextCtor || !blob) {
-    return blob;
-  }
-
-  const audioContext = new AudioContextCtor();
-  try {
-    const arrayBuffer = await blob.arrayBuffer();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
-    return encodeAudioBufferToWav(audioBuffer);
-  } catch (err) {
-    return blob;
-  } finally {
-    try {
-      await audioContext.close();
-    } catch (err) {
-      // ignore
-    }
-  }
 };
 
 const getRecordingDuration = async (blob) => {
@@ -165,6 +169,7 @@ const CandidatePortal = () => {
   const [result, setResult] = useState(null);
   const [success, setSuccess] = useState("");
   const [liveSession, setLiveSession] = useState(null);
+  const [startingLiveInterview, setStartingLiveInterview] = useState(false);
   const [recording, setRecording] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState("");
   const [liveQuestion, setLiveQuestion] = useState("");
@@ -172,12 +177,28 @@ const CandidatePortal = () => {
   const [questionSpeaking, setQuestionSpeaking] = useState(false);
   const [questionCooldown, setQuestionCooldown] = useState(false);
   const [recordedAnswer, setRecordedAnswer] = useState(null);
+  const [recordedAnswerPreviewUrl, setRecordedAnswerPreviewUrl] = useState("");
+  const [recordedAnswerMeta, setRecordedAnswerMeta] = useState({ size: 0, duration: 0 });
+  const [recordingMeter, setRecordingMeter] = useState(0);
+  const [recordingFormat, setRecordingFormat] = useState("");
+  const [recordingDeviceLabel, setRecordingDeviceLabel] = useState("");
   const [answerReady, setAnswerReady] = useState(false);
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
   const mediaRecorderRef = useRef(null);
   const recordedAnswerRef = useRef(null);
   const chunksRef = useRef([]);
   const questionCooldownTimerRef = useRef(null);
+  const playbackAudioRef = useRef(null);
+  const recordingAudioContextRef = useRef(null);
+  const recordingAnalyserRef = useRef(null);
+  const recordingSourceRef = useRef(null);
+  const recordingMeterFrameRef = useRef(null);
+  const recordingStreamRef = useRef(null);
+  const recordingProcessorRef = useRef(null);
+  const recordingGainRef = useRef(null);
+  const recordingFinalizeRef = useRef(null);
+  const recordingSamplesRef = useRef([]);
+  const recordingSampleRateRef = useRef(44100);
   const MIN_ANSWER_DURATION_SECONDS = 2.5;
 
   useEffect(() => {
@@ -219,6 +240,85 @@ const CandidatePortal = () => {
   }, [result?.candidate]);
 
   useEffect(() => {
+    return () => {
+      if (playbackAudioRef.current) {
+        playbackAudioRef.current.pause();
+        playbackAudioRef.current.currentTime = 0;
+        playbackAudioRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (recordingMeterFrameRef.current) {
+        cancelAnimationFrame(recordingMeterFrameRef.current);
+        recordingMeterFrameRef.current = null;
+      }
+
+      if (recordingStreamRef.current) {
+        recordingStreamRef.current.getTracks().forEach((track) => track.stop());
+        recordingStreamRef.current = null;
+      }
+
+      if (recordingProcessorRef.current) {
+        try {
+          recordingProcessorRef.current.disconnect();
+        } catch (err) {
+          // ignore
+        }
+        recordingProcessorRef.current = null;
+      }
+
+      if (recordingGainRef.current) {
+        try {
+          recordingGainRef.current.disconnect();
+        } catch (err) {
+          // ignore
+        }
+        recordingGainRef.current = null;
+      }
+
+      if (recordingSourceRef.current) {
+        try {
+          recordingSourceRef.current.disconnect();
+        } catch (err) {
+          // ignore
+        }
+        recordingSourceRef.current = null;
+      }
+
+      if (recordingAnalyserRef.current) {
+        try {
+          recordingAnalyserRef.current.disconnect();
+        } catch (err) {
+          // ignore
+        }
+        recordingAnalyserRef.current = null;
+      }
+
+      if (recordingAudioContextRef.current) {
+        recordingAudioContextRef.current.close().catch(() => {});
+        recordingAudioContextRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!recordedAnswer) {
+      setRecordedAnswerPreviewUrl("");
+      return undefined;
+    }
+
+    const previewUrl = URL.createObjectURL(recordedAnswer);
+    setRecordedAnswerPreviewUrl(previewUrl);
+
+    return () => {
+      URL.revokeObjectURL(previewUrl);
+    };
+  }, [recordedAnswer]);
+
+  useEffect(() => {
     if (!voiceEnabled || activeTab !== "interview" || !liveSession || !liveQuestion) {
       setQuestionSpeaking(false);
       setQuestionCooldown(false);
@@ -240,6 +340,12 @@ const CandidatePortal = () => {
       questionCooldownTimerRef.current = null;
     }
 
+    const getRecordingDelay = () => {
+      const baseDelay = 2500;
+      const questionDelay = Math.min(4500, Math.max(0, liveQuestion.length * 35));
+      return Math.max(baseDelay, questionDelay);
+    };
+
     const releaseRecordingLock = () => {
       setQuestionSpeaking(false);
       setQuestionCooldown(true);
@@ -249,7 +355,7 @@ const CandidatePortal = () => {
       questionCooldownTimerRef.current = window.setTimeout(() => {
         setQuestionCooldown(false);
         questionCooldownTimerRef.current = null;
-      }, 1200);
+      }, getRecordingDelay());
     };
 
     const utterance = new SpeechSynthesisUtterance(liveQuestion);
@@ -423,6 +529,12 @@ const CandidatePortal = () => {
       return;
     }
 
+    if (startingLiveInterview || liveSession) {
+      return;
+    }
+
+    setStartingLiveInterview(true);
+
     try {
       const res = await publicPortalApi.startLiveInterview({
         candidate_id: Number(candidatePayload.candidate_id),
@@ -442,6 +554,8 @@ const CandidatePortal = () => {
         return;
       }
       setError(err);
+    } finally {
+      setStartingLiveInterview(false);
     }
   };
 
@@ -450,6 +564,12 @@ const CandidatePortal = () => {
     recordedAnswerRef.current = null;
     setRecordedAnswer(null);
     setAnswerReady(false);
+    setRecordedAnswerMeta({ size: 0, duration: 0 });
+    setRecordingMeter(0);
+    setRecordingFormat("");
+    setRecordingDeviceLabel("");
+    recordingSamplesRef.current = [];
+    recordingFinalizeRef.current = null;
 
     if (questionSpeaking || questionCooldown) {
       setError({ message: "Please wait a moment after the question finishes before recording your answer." });
@@ -463,24 +583,145 @@ const CandidatePortal = () => {
 
     try {
       window.speechSynthesis?.cancel?.();
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = pickRecordingMimeType();
-      const recorder = new MediaRecorder(stream, { mimeType });
-      chunksRef.current = [];
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      recordingStreamRef.current = stream;
+      let finalized = false;
 
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data);
+      if (recordingMeterFrameRef.current) {
+        cancelAnimationFrame(recordingMeterFrameRef.current);
+        recordingMeterFrameRef.current = null;
+      }
+
+      if (recordingAudioContextRef.current) {
+        await recordingAudioContextRef.current.close().catch(() => {});
+      }
+
+      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextCtor) {
+        const audioContext = new AudioContextCtor();
+        recordingSampleRateRef.current = audioContext.sampleRate || 44100;
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.minDecibels = -90;
+        analyser.maxDecibels = -20;
+        analyser.smoothingTimeConstant = 0.85;
+        const source = audioContext.createMediaStreamSource(stream);
+        const processor = audioContext.createScriptProcessor(4096, 1, 1);
+        const gain = audioContext.createGain();
+        gain.gain.value = 0;
+        source.connect(analyser);
+        source.connect(processor);
+        processor.connect(gain);
+        gain.connect(audioContext.destination);
+
+        recordingAudioContextRef.current = audioContext;
+        recordingAnalyserRef.current = analyser;
+        recordingSourceRef.current = source;
+        recordingProcessorRef.current = processor;
+        recordingGainRef.current = gain;
+
+        processor.onaudioprocess = (event) => {
+          const input = event.inputBuffer.getChannelData(0);
+          if (input && input.length) {
+            recordingSamplesRef.current.push(new Float32Array(input));
+          }
+        };
+
+        const meterBuffer = new Uint8Array(analyser.fftSize);
+        const updateMeter = () => {
+          if (!recordingAnalyserRef.current || !recordingAudioContextRef.current) {
+            setRecordingMeter(0);
+            return;
+          }
+
+          analyser.getByteTimeDomainData(meterBuffer);
+          let total = 0;
+          for (let i = 0; i < meterBuffer.length; i += 1) {
+            const normalized = (meterBuffer[i] - 128) / 128;
+            total += normalized * normalized;
+          }
+
+          const rms = Math.sqrt(total / meterBuffer.length);
+          const decibels = 20 * Math.log10(Math.max(rms, 1e-8));
+          const normalizedLevel = (decibels + 60) / 50;
+          setRecordingMeter(Math.min(100, Math.max(0, Math.round(normalizedLevel * 100))));
+          recordingMeterFrameRef.current = window.requestAnimationFrame(updateMeter);
+        };
+
+        recordingMeterFrameRef.current = window.requestAnimationFrame(updateMeter);
+      }
+
+      setRecordingFormat("audio/wav");
+      setRecordingDeviceLabel(stream.getAudioTracks?.()?.[0]?.label || "Default microphone");
+      recordingFinalizeRef.current = async () => {
+        if (finalized) {
+          return;
         }
-      };
+        finalized = true;
 
-      recorder.onstop = async () => {
-        const blob = new Blob(chunksRef.current, {
-          type: recorder.mimeType || mimeType || "audio/webm",
-        });
         stream.getTracks().forEach((track) => track.stop());
-        const uploadBlob = await convertRecordingToWav(blob);
-        const durationSeconds = await getRecordingDuration(uploadBlob);
+        recordingStreamRef.current = null;
+
+        if (recordingMeterFrameRef.current) {
+          cancelAnimationFrame(recordingMeterFrameRef.current);
+          recordingMeterFrameRef.current = null;
+        }
+
+        if (recordingProcessorRef.current) {
+          try {
+            recordingProcessorRef.current.disconnect();
+          } catch (err) {
+            // ignore
+          }
+          recordingProcessorRef.current = null;
+        }
+
+        if (recordingGainRef.current) {
+          try {
+            recordingGainRef.current.disconnect();
+          } catch (err) {
+            // ignore
+          }
+          recordingGainRef.current = null;
+        }
+
+        if (recordingSourceRef.current) {
+          try {
+            recordingSourceRef.current.disconnect();
+          } catch (err) {
+            // ignore
+          }
+          recordingSourceRef.current = null;
+        }
+
+        if (recordingAnalyserRef.current) {
+          try {
+            recordingAnalyserRef.current.disconnect();
+          } catch (err) {
+            // ignore
+          }
+          recordingAnalyserRef.current = null;
+        }
+
+        if (recordingAudioContextRef.current) {
+          recordingAudioContextRef.current.close().catch(() => {});
+          recordingAudioContextRef.current = null;
+        }
+
+        setRecordingMeter(0);
+        const totalSamples = recordingSamplesRef.current.reduce((sum, chunk) => sum + chunk.length, 0);
+        const mergedSamples = new Float32Array(totalSamples);
+        let writeOffset = 0;
+        for (const chunk of recordingSamplesRef.current) {
+          mergedSamples.set(chunk, writeOffset);
+          writeOffset += chunk.length;
+        }
+
+        const sampleRate = recordingSampleRateRef.current || 44100;
+        const durationSeconds = mergedSamples.length > 0 ? mergedSamples.length / sampleRate : 0;
+        const uploadBlob = encodeFloat32ToWav(mergedSamples, sampleRate);
 
         if (durationSeconds > 0 && durationSeconds < MIN_ANSWER_DURATION_SECONDS) {
           setError({
@@ -491,23 +732,62 @@ const CandidatePortal = () => {
         }
 
         recordedAnswerRef.current = uploadBlob;
+        setRecordedAnswerMeta({
+          size: uploadBlob.size || 0,
+          duration: durationSeconds,
+        });
         setRecordedAnswer(uploadBlob);
+        setRecordingFormat("audio/wav");
         setAnswerReady(true);
         setSuccess("Answer recorded. Press Submit Answer when you are ready to send it.");
       };
 
-      mediaRecorderRef.current = recorder;
-      recorder.start(1000);
       setRecording(true);
     } catch (err) {
       setError(err);
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-      setRecording(false);
+  const playRecordedAnswer = async () => {
+    if (!recordedAnswerPreviewUrl) {
+      setError({ message: "There is no recorded answer to replay yet." });
+      return;
+    }
+
+    try {
+      setError(null);
+      if (playbackAudioRef.current) {
+        playbackAudioRef.current.pause();
+        playbackAudioRef.current.currentTime = 0;
+      }
+
+      const audio = new Audio(recordedAnswerPreviewUrl);
+      playbackAudioRef.current = audio;
+      await audio.play();
+    } catch (err) {
+      setError(err);
+    }
+  };
+
+  const downloadRecordedAnswer = () => {
+    if (!recordedAnswerPreviewUrl || !recordedAnswer) {
+      setError({ message: "There is no recorded audio to download yet." });
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = recordedAnswerPreviewUrl;
+    link.download = blobToFileName(recordedAnswer);
+    link.click();
+  };
+
+  const stopRecording = async () => {
+    const finalize = recordingFinalizeRef.current;
+    recordingFinalizeRef.current = null;
+    setRecording(false);
+
+    if (finalize) {
+      await finalize();
     }
   };
 
@@ -926,8 +1206,9 @@ const CandidatePortal = () => {
                   <button
                     className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:from-cyan-500 hover:to-blue-500 focus:outline-none focus:ring-4 focus:ring-cyan-200 dark:focus:ring-cyan-400/20"
                     type="submit"
+                    disabled={startingLiveInterview || !!liveSession}
                   >
-                    Start AI interview
+                    {startingLiveInterview ? "Starting..." : "Start AI interview"}
                   </button>
                 </form>
 
@@ -965,6 +1246,48 @@ const CandidatePortal = () => {
                       </div>
                     </div>
 
+                    {(recording || answerReady) && (
+                      <div className="mt-3 rounded-2xl border border-cyan-200 bg-cyan-50 p-4 dark:border-cyan-500/20 dark:bg-cyan-500/10">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <div className="font-medium text-cyan-900 dark:text-cyan-100">Recording diagnostics</div>
+                            <div className="mt-1 text-xs text-cyan-800/80 dark:text-cyan-200/80">
+                              {recording
+                                ? "Recording in progress..."
+                                : `File size: ${formatFileSize(recordedAnswerMeta.size)} | Duration: ${formatDuration(recordedAnswerMeta.duration)}`}
+                            </div>
+                            <div className="mt-1 text-[11px] text-cyan-700/80 dark:text-cyan-200/80">
+                              Format: {recordingFormat || "unknown"} | Mic: {recordingDeviceLabel || "unknown"}
+                            </div>
+                          </div>
+                          <button
+                            className="inline-flex items-center justify-center rounded-2xl border border-cyan-300 bg-white px-4 py-2 text-sm font-semibold text-cyan-700 shadow-sm transition hover:bg-cyan-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-cyan-500/30 dark:bg-slate-950 dark:text-cyan-200 dark:hover:bg-slate-900"
+                            type="button"
+                            onClick={downloadRecordedAnswer}
+                            disabled={!recordedAnswerPreviewUrl}
+                          >
+                            Download audio
+                          </button>
+                        </div>
+
+                        <div className="mt-4">
+                          <div className="mb-2 flex items-center justify-between text-xs text-cyan-900/80 dark:text-cyan-200/80">
+                            <span>Recording level</span>
+                            <span>{recording ? `${recordingMeter}%` : "Idle"}</span>
+                          </div>
+                          <div className="h-3 overflow-hidden rounded-full bg-cyan-100 dark:bg-cyan-900/40">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-150"
+                              style={{ width: `${recording ? Math.max(4, recordingMeter) : 4}%` }}
+                            />
+                          </div>
+                          <div className="mt-2 text-xs text-cyan-800/80 dark:text-cyan-200/80">
+                            If the bar barely moves while you speak, the browser is probably recording silence, the wrong mic, or blocking your input.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="mt-4 flex flex-wrap gap-3">
                       {!recording ? (
                         <button
@@ -984,6 +1307,15 @@ const CandidatePortal = () => {
                           Stop recording
                         </button>
                       )}
+
+                      <button
+                        className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+                        type="button"
+                        onClick={playRecordedAnswer}
+                        disabled={!answerReady || recording || submittingAnswer || !!liveSession.completed}
+                        >
+                          Re-hear recording
+                        </button>
 
                       <button
                         className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-cyan-500 hover:to-blue-500 disabled:cursor-not-allowed disabled:opacity-60"

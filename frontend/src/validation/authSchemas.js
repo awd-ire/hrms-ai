@@ -14,6 +14,13 @@ export const registerSchema = z.object({
   username: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
+  role: z.literal("candidate")
+});
+
+export const staffCreateSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  email: z.string().email("A valid email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.enum(["admin", "senior_manager", "hr_recruiter", "employee"])
 });
 
@@ -26,6 +33,6 @@ export const userResponseSchema = z.object({
   id: z.number(),
   username: z.string(),
   email: z.string().email(),
-  role: z.enum(["admin", "senior_manager", "hr_recruiter", "employee"]),
+  role: z.enum(["admin", "senior_manager", "hr_recruiter", "employee", "candidate"]),
   is_active: z.boolean().optional()
 });

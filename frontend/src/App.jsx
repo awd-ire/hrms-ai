@@ -102,7 +102,6 @@ const App = () => {
           {/* Public Route */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/careers" element={<CandidatePortal />} />
 
           {/* Protected App Shell Routes */}
           <Route element={<ProtectedRoute />}>
@@ -311,6 +310,16 @@ const App = () => {
                 element={
                   <RoleRoute
                     allowedRoles={["hr_recruiter"]}
+                    element={<CandidatePortal />}
+                  />
+                }
+              />
+
+              <Route
+                path="/careers"
+                element={
+                  <RoleRoute
+                    allowedRoles={["candidate"]}
                     element={<CandidatePortal />}
                   />
                 }

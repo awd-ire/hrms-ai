@@ -26,7 +26,7 @@ const Topbar = ({ onMenuClick }) => {
         </button>
 
         <div>
-          <h2 className="text-sm md:text-base font-semibold text-gray-800 dark:text-white">
+          <h2 className="text-sm md:text-base font-semibold text-slate-700 dark:text-white">
             Enterprise HRMS
           </h2>
           <p className="text-[11px] uppercase tracking-[0.25em] text-gray-500 dark:text-gray-400">
@@ -44,7 +44,7 @@ const Topbar = ({ onMenuClick }) => {
         </button>
 
         <div className="hidden md:block text-right">
-          <div className="text-sm font-medium text-gray-700 dark:text-gray-200">
+          <div className="text-sm font-medium text-slate-600 dark:text-gray-200">
             {user?.username || "User"}
           </div>
           <div className="text-[11px] uppercase tracking-[0.25em] text-gray-500 dark:text-gray-400">

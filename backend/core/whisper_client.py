@@ -80,8 +80,8 @@ class WhisperClient:
         try:
             whisper_model = cls._get_model(model)
             attempts = [
-                {"language": language, "vad_filter": True},
                 {"language": language, "vad_filter": False},
+                {"language": language, "vad_filter": True},
             ]
 
             if language is None:
@@ -93,6 +93,10 @@ class WhisperClient:
                     str(path),
                     language=attempt["language"],
                     vad_filter=attempt["vad_filter"],
+                    beam_size=5,
+                    best_of=5,
+                    temperature=0.0,
+                    condition_on_previous_text=False,
                 )
                 last_info = info
                 transcript = "".join(segment.text for segment in segments).strip()

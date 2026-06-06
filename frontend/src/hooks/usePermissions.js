@@ -4,6 +4,7 @@ import { getRoleRank, hasAnyRole, hasRoleAtLeast } from "@/utils/roleHierarchy";
 /**
  * Role-based access control hook (RBAC)
  * Roles from backend:
+ * - candidate
  * - admin
  * - senior_manager
  * - hr_recruiter
@@ -17,6 +18,7 @@ export const usePermissions = () => {
   const isAdmin = role === "admin";
   const isManager = role === "senior_manager";
   const isHR = role === "hr_recruiter";
+  const isCandidate = role === "candidate";
   const isEmployee = role === "employee";
 
   /**
@@ -34,6 +36,7 @@ export const usePermissions = () => {
     isAdmin,
     isManager,
     isHR,
+    isCandidate,
     isEmployee,
     can,
     canAtLeast,

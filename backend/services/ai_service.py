@@ -538,24 +538,43 @@ IMPORTANT: Return ONLY valid JSON."""
         )
 
     @staticmethod
-    def transcribe_voice(audio_path: str, language: Optional[str] = "en") -> Dict[str, Any]:
+    def transcribe_voice(audio_path: str, language: Optional[str] = None) -> Dict[str, Any]:
         path = Path(audio_path)
         if not path.exists():
             raise ValueError("Audio file not found on disk")
+
+        def clean_transcript(transcript: str) -> str:
+            normalized = " ".join(transcript.split()).strip()
+            if not normalized:
+                return ""
+
+            tokens = normalized.split()
+            if len(tokens) >= 2 and len(set(token.lower() for token in tokens[-3:])) == 1:
+                normalized = " ".join(tokens[:-2]).strip()
+
+            return normalized
 
         def is_low_quality(transcript: str) -> bool:
             normalized = transcript.strip()
             if not normalized:
                 return True
-            return len(normalized.split()) < 3 or len(normalized) < 12
+            words = normalized.split()
+            if len(words) < 3 or len(normalized) < 12:
+                return True
+            if len(set(word.lower() for word in words)) == 1 and len(words) <= 4:
+                return True
+            return False
 
-        attempts = [
-            ("whisper", language),
+        attempts = []
+        if language is not None:
+            attempts.append(("whisper", language))
+        attempts.extend([
             ("whisper", None),
             ("ollama", language),
             ("ollama", None),
-        ]
+        ])
         best_result: Optional[Dict[str, Any]] = None
+        best_result_provider: Optional[str] = None
         last_error = "Transcription failed"
 
         for provider, attempt_language in attempts:
@@ -564,7 +583,7 @@ IMPORTANT: Return ONLY valid JSON."""
             else:
                 result = OllamaClient.transcribe(str(path), language=attempt_language)
 
-            transcript = str(result.get("transcript", "")).strip()
+            transcript = clean_transcript(str(result.get("transcript", "")))
             if result.get("success") and transcript:
                 payload = {
                     "transcript": transcript,
@@ -575,13 +594,20 @@ IMPORTANT: Return ONLY valid JSON."""
                     payload["provider"] = provider
                     return payload
                 if best_result is None or len(transcript) > len(str(best_result.get("transcript", ""))):
-                    best_result = {**payload, "provider": provider}
+                    best_result = payload
+                    best_result_provider = provider
 
             if result.get("error"):
                 last_error = result.get("error")
 
         if best_result is not None:
-            return best_result
+            transcript = clean_transcript(str(best_result.get("transcript", "")))
+            if not is_low_quality(transcript):
+                return {**best_result, "provider": best_result_provider}
+            last_error = (
+                "We could not detect speech clearly in your recording. "
+                "Please record again and speak a little louder."
+            )
 
         raise RuntimeError(last_error)
 

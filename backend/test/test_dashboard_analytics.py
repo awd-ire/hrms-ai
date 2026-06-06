@@ -175,7 +175,7 @@ def test_attendance_analytics_filters(admin_auth_header, client):
     dept = d.json()
 
     # create manager user and employee
-    mgr = client.post("/api/auth/register", json={"username": f"mgr_{uuid.uuid4().hex[:4]}", "email": f"m{uuid.uuid4().hex[:4]}@example.com", "password": "password", "role": "senior_manager"}, headers=admin_auth_header)
+    mgr = client.post("/api/users/create", json={"username": f"mgr_{uuid.uuid4().hex[:4]}", "email": f"m{uuid.uuid4().hex[:4]}@example.com", "password": "password", "role": "senior_manager"}, headers=admin_auth_header)
     assert mgr.status_code == 201
     mgr_login = client.post("/api/auth/login", json={"username": mgr.json()["username"], "password": "password"})
     assert mgr_login.status_code == 200

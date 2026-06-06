@@ -31,6 +31,7 @@ const AIResumeScreen = React.lazy(() => import("@/pages/ai/AIResumeScreen"));
  * - senior_manager
  * - hr_recruiter
  * - employee
+ * - candidate
  */
 
 export const routeConfig = [
@@ -76,7 +77,7 @@ export const routeConfig = [
     path: "/admin/users",
     element: <UserManagement />,
     protected: true,
-    roles: ["admin"]
+    roles: ["admin", "senior_manager", "hr_recruiter"]
   },
 
   // Manager
@@ -149,6 +150,13 @@ export const routeConfig = [
     element: <HRCandidatePortal />,
     protected: true,
     roles: ["hr_recruiter"]
+  },
+
+  {
+    path: "/careers",
+    element: <HRCandidatePortal />,
+    protected: true,
+    roles: ["candidate"]
   },
 
   // Employee

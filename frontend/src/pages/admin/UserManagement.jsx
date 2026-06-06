@@ -7,6 +7,8 @@ import ApiError from "@/components/common/ApiError";
 import Badge from "@/components/common/Badge";
 import Table from "@/components/common/Table";
 import StatCard from "@/components/common/StatCard";
+import Modal from "@/components/common/Modal";
+import { usePermissions } from "@/hooks/usePermissions";
 
 /**
  * Admin User Management
@@ -17,10 +19,33 @@ import StatCard from "@/components/common/StatCard";
  * employee profile during employee onboarding.
  */
 const UserManagement = () => {
+  const { role } = usePermissions();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
+  const [createForm, setCreateForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "employee",
+  });
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState("");
+  const [createSuccess, setCreateSuccess] = useState("");
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+
+  const allowedRoles = useMemo(() => {
+    if (role === "admin") {
+      return ["admin", "senior_manager", "hr_recruiter", "employee"];
+    }
+
+    if (role === "senior_manager") {
+      return ["hr_recruiter", "employee"];
+    }
+
+    return ["employee"];
+  }, [role]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -40,6 +65,13 @@ const UserManagement = () => {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    setCreateForm((current) => ({
+      ...current,
+      role: allowedRoles.includes(current.role) ? current.role : allowedRoles[0] || "employee",
+    }));
+  }, [allowedRoles]);
+
   const filteredUsers = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return users;
@@ -58,6 +90,50 @@ const UserManagement = () => {
       return acc;
     }, {});
   }, [users]);
+
+  const handleCreateUser = async (event) => {
+    event.preventDefault();
+    setCreateLoading(true);
+    setCreateError("");
+    setCreateSuccess("");
+
+    try {
+      if (!allowedRoles.includes(createForm.role)) {
+        throw new Error("You are not allowed to create that role.");
+      }
+
+      await usersApi.create(createForm);
+      setCreateSuccess(`Created ${createForm.role} account for ${createForm.username}.`);
+      setCreateForm({
+        username: "",
+        email: "",
+        password: "",
+        role: allowedRoles[0] || "employee",
+      });
+      fetchUsers();
+      setOnboardingOpen(false);
+    } catch (err) {
+      setCreateError(err?.response?.data?.detail || err?.message || "Failed to create user");
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
+  const openOnboarding = () => {
+    setCreateError("");
+    setCreateSuccess("");
+    setCreateForm((current) => ({
+      ...current,
+      role: allowedRoles.includes(current.role) ? current.role : allowedRoles[0] || "employee",
+    }));
+    setOnboardingOpen(true);
+  };
+
+  const closeOnboarding = () => {
+    if (createLoading) return;
+    setOnboardingOpen(false);
+    setCreateError("");
+  };
 
   const columns = [
     { key: "username", label: "Username" },
@@ -81,7 +157,7 @@ const UserManagement = () => {
       <div className="space-y-1">
         <h1 className="text-xl font-bold">User Management</h1>
         <p className="text-sm text-gray-500">
-          Review active user accounts that can still be linked to employee profiles.
+          Admin, manager, and HR can create login accounts here with role limits based on their hierarchy.
         </p>
       </div>
 
@@ -101,6 +177,9 @@ const UserManagement = () => {
           </div>
 
           <div className="flex gap-2">
+            <Button onClick={openOnboarding}>
+              Start Onboarding
+            </Button>
             <Button variant="secondary" onClick={fetchUsers}>
               Refresh
             </Button>
@@ -133,7 +212,7 @@ const UserManagement = () => {
 
         {error && <ApiError error={{ message: error.message }} onRetry={fetchUsers} />}
 
-        {loading ? (
+          {loading ? (
           <LoadingSpinner />
         ) : (
           <Table
@@ -166,6 +245,103 @@ const UserManagement = () => {
           </p>
         </Link>
       </div>
+
+      <Modal
+        open={onboardingOpen}
+        onClose={closeOnboarding}
+        title="Create Login Account"
+      >
+        <form onSubmit={handleCreateUser} className="space-y-5">
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="md:col-span-2 rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-800 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-100">
+              {role === "admin"
+                ? "Admin can create admin, manager, HR, and employee accounts."
+                : role === "senior_manager"
+                ? "Manager can create HR and employee accounts."
+                : "HR can create employee accounts."}
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                Username
+              </label>
+              <input
+                value={createForm.username}
+                onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
+                placeholder="Username"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 dark:border-gray-600 dark:bg-gray-700"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                Email
+              </label>
+              <input
+                value={createForm.email}
+                onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                placeholder="Email"
+                type="email"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 dark:border-gray-600 dark:bg-gray-700"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                Password
+              </label>
+              <input
+                value={createForm.password}
+                onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                placeholder="Password"
+                type="password"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 dark:border-gray-600 dark:bg-gray-700"
+                required
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                Role
+              </label>
+              <select
+                value={createForm.role}
+                onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 dark:border-gray-600 dark:bg-gray-700"
+                required
+              >
+                {allowedRoles.map((allowedRole) => (
+                  <option key={allowedRole} value={allowedRole}>
+                    {allowedRole}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {createError && (
+            <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-200">
+              {createError}
+            </p>
+          )}
+          {createSuccess && (
+            <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-200">
+              {createSuccess}
+            </p>
+          )}
+
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button type="button" variant="secondary" onClick={closeOnboarding} disabled={createLoading}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={createLoading}>
+              Create Account
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

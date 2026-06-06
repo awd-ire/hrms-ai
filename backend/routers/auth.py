@@ -45,15 +45,18 @@ def register(
 
         user = AuthService.register_user(
             db=db,
-            payload=payload
+            payload=payload,
+            allowed_roles=["candidate"],
         )
 
         return user
 
     except ValueError as e:
-
+        status_code = status.HTTP_400_BAD_REQUEST
+        if str(e) == "Role not allowed":
+            status_code = status.HTTP_403_FORBIDDEN
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status_code,
             detail=str(e)
         )
 

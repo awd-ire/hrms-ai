@@ -14,7 +14,7 @@ const navConfig = [
   { label: "HR Dashboard", path: "/hr", minRole: "hr_recruiter" },
   { label: "My Dashboard", path: "/employee", roles: ["employee"] },
   { label: "Manage Employees", path: "/employees", minRole: "hr_recruiter" },
-  { label: "User Management", path: "/admin/users", roles: ["admin"] },
+  { label: "User Management", path: "/admin/users", minRole: "hr_recruiter" },
   { label: "Departments", path: "/admin/departments", roles: ["admin"] },
   { label: "Employee Directory", path: "/directory", minRole: "hr_recruiter" },
   { label: "Leave Approvals", path: "/manager/approvals", minRole: "senior_manager" },
@@ -28,6 +28,7 @@ const navConfig = [
   { label: "Recruitment", path: "/hr/recruitment", minRole: "hr_recruiter" },
   { label: "Interview Workspace", path: "/hr/interview", minRole: "hr_recruiter" },
   { label: "AI Resume Screen", path: "/hr/resume-screen", minRole: "hr_recruiter" },
+  { label: "Candidate Portal", path: "/careers", roles: ["candidate"] },
   { label: "Analytics", path: "/analytics/company", minRole: "admin" },
 ];
 

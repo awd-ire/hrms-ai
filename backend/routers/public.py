@@ -37,6 +37,39 @@ logger = logging.getLogger(__name__)
 LIVE_INTERVIEW_SESSIONS: dict[str, dict] = {}
 
 
+def _normalize_transcript_text(text: str) -> str:
+    return " ".join(str(text or "").split()).strip()
+
+
+def _sanitize_live_transcript(transcript: str, question: str | None = None) -> str:
+    normalized = _normalize_transcript_text(transcript)
+    if not normalized:
+        return ""
+
+    if question:
+        normalized_question = _normalize_transcript_text(question)
+        if normalized_question:
+            lower_transcript = normalized.lower()
+            lower_question = normalized_question.lower()
+
+            if lower_transcript.startswith(lower_question):
+                normalized = _normalize_transcript_text(
+                    normalized[len(normalized_question):]
+                )
+            elif lower_question in lower_transcript:
+                start = lower_transcript.find(lower_question)
+                end = start + len(normalized_question)
+                normalized = _normalize_transcript_text(
+                    f"{normalized[:start]} {normalized[end:]}"
+                )
+
+    words = normalized.split()
+    if len(words) >= 3 and len(set(word.lower() for word in words[-3:])) == 1:
+        normalized = " ".join(words[:-2]).strip()
+
+    return normalized
+
+
 def _check_candidate_access(candidate, email: str) -> None:
     if not candidate or candidate.email.lower() != email.lower():
         raise HTTPException(
@@ -421,18 +454,33 @@ async def continue_live_interview(
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
 
     transcript = transcript_result.get("transcript", "")
+    current_question = ""
+    questions = session.get("questions", [])
+    current_index = session.get("question_index", 0)
+    if 0 <= current_index < len(questions):
+        current_question = questions[current_index].get("question", "")
+
+    sanitized_transcript = _sanitize_live_transcript(transcript, current_question)
+
+    if not sanitized_transcript:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="We could not detect speech clearly in your recording. Please record again and speak a little louder.",
+        )
+
     log_ai_interview_event(
         "AI_INTERVIEW_TRANSCRIPT",
         session_id=session_id,
         candidate_id=candidate_id,
-        transcript=transcript,
-        transcript_chars=len(transcript),
+        transcript=sanitized_transcript,
+        transcript_chars=len(sanitized_transcript),
         question_index=session.get("question_index"),
         round_number=session.get("round_number"),
     )
-    if transcript:
+
+    if sanitized_transcript:
         interview.transcript = (
-            f"{interview.transcript}\n\n{transcript}" if interview.transcript else transcript
+            f"{interview.transcript}\n\n{sanitized_transcript}" if interview.transcript else sanitized_transcript
         )
         db.commit()
         db.refresh(interview)
@@ -449,17 +497,17 @@ async def continue_live_interview(
         session_id,
         candidate_id,
         audio_path,
-        len(transcript),
+        len(sanitized_transcript),
         session.get("question_index"),
         session.get("round_number"),
-        len(session.get("questions", [])),
+        len(questions),
     )
-    session["answers"].append(transcript)
-    session["conversation"].append({"role": "candidate", "content": transcript})
+    if sanitized_transcript:
+        session["answers"].append(sanitized_transcript)
+        session["conversation"].append({"role": "candidate", "content": sanitized_transcript})
     session["question_index"] += 1
     session["round_number"] += 1
 
-    questions = session.get("questions", [])
     completed = session["question_index"] >= len(questions) or session["round_number"] > 5
     logger.info(
         "Live interview turn state session_id=%s candidate_id=%s question_index=%s round_number=%s total_questions=%s completed=%s",
@@ -547,7 +595,7 @@ async def continue_live_interview(
         question=next_question,
         round_number=session["round_number"],
         total_questions=session.get("total_questions", len(questions) if questions else 1),
-        transcript=transcript,
+        transcript=sanitized_transcript,
         reply=AIService._coerce_text(interview_chat.get("reply", "")),
         follow_up_questions=interview_chat.get("follow_up_questions", []),
         evaluation=evaluation,

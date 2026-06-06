@@ -40,7 +40,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
+        <h1 className="text-2xl font-bold text-center text-slate-700 dark:text-white mb-6">
           HRMS Login
         </h1>
 
@@ -97,22 +97,6 @@ const LoginPage = () => {
           </button>
         </form>
         <div className="mt-4 space-y-3">
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-950/40">
-            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-              Candidate looking for jobs?
-            </p>
-            <p className="mt-1 text-xs text-blue-700 dark:text-blue-200">
-              Apply for open roles, attend the AI interview, and check your result from the public portal.
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate("/careers")}
-              className="mt-3 inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Open Candidate Portal
-            </button>
-          </div>
-
           <div className="flex items-center justify-between">
             <p className="text-xs text-gray-500">Enterprise HRMS System</p>
             <button
@@ -120,7 +104,7 @@ const LoginPage = () => {
               onClick={() => navigate('/register')}
               className="text-sm text-blue-600 hover:underline"
             >
-              Register
+              Candidate Register
             </button>
           </div>
         </div>

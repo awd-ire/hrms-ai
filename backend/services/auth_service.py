@@ -15,8 +15,15 @@ VALID_ROLES = [
     "admin",
     "senior_manager",
     "hr_recruiter",
-    "employee"
+    "employee",
+    "candidate"
 ]
+
+ROLE_CREATION_RULES = {
+    "admin": ["admin", "senior_manager", "hr_recruiter", "employee"],
+    "senior_manager": ["hr_recruiter", "employee"],
+    "hr_recruiter": ["employee"],
+}
 
 
 class AuthService:
@@ -24,7 +31,8 @@ class AuthService:
     @staticmethod
     def register_user(
         db: Session,
-        payload: UserRegister
+        payload: UserRegister,
+        allowed_roles: list[str] | None = None,
     ):
 
         existing_username = (
@@ -49,9 +57,16 @@ class AuthService:
                 "Email already exists"
             )
 
+        permitted_roles = allowed_roles or VALID_ROLES
+
         if payload.role not in VALID_ROLES:
             raise ValueError(
                 "Invalid role"
+            )
+
+        if payload.role not in permitted_roles:
+            raise ValueError(
+                "Role not allowed"
             )
 
         user = User(

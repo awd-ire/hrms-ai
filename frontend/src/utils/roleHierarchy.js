@@ -1,4 +1,5 @@
 export const ROLE_RANK = {
+  candidate: -1,
   employee: 0,
   hr_recruiter: 1,
   senior_manager: 2,

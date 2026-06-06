@@ -7,8 +7,9 @@ def test_conduct_interview_flow(client, admin_auth_header, monkeypatch):
     hr_username = "hr_user"
     hr_password = "password"
     resp = client.post(
-        "/api/auth/register",
+        "/api/users/create",
         json={"username": hr_username, "email": "hr@example.com", "password": hr_password, "role": "hr_recruiter"},
+        headers=admin_auth_header,
     )
     assert resp.status_code == 201
 

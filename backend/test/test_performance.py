@@ -65,7 +65,7 @@ def test_performance_create_and_flow(admin_auth_header, client):
     memail = f"{musername}@example.com"
     mpass = "password"
     resp = client.post(
-        "/api/auth/register",
+        "/api/users/create",
         json={"username": musername, "email": memail, "password": mpass, "role": "senior_manager"},
         headers=admin_auth_header,
     )

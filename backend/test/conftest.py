@@ -13,6 +13,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 from database import Base
 import database
+from core.security import create_access_token
+from core.security import hash_password
+from models.user import User
 
 # import models so they register with Base.metadata
 import models
@@ -25,6 +28,7 @@ engine = create_engine(
 )
 database.engine = engine
 database.SessionLocal.configure(bind=engine)
+_CURRENT_TEST_SESSION = None
 
 # create all tables now so the app sees the schema on startup
 Base.metadata.create_all(bind=engine)
@@ -35,10 +39,13 @@ import config
 
 @pytest.fixture()
 def client():
+    global _CURRENT_TEST_SESSION
+
     # create a SAVEPOINT-like transactional scope per test
     connection = engine.connect()
     transaction = connection.begin()
     session = database.SessionLocal(bind=connection)
+    _CURRENT_TEST_SESSION = session
 
     def override_get_db():
         try:
@@ -56,6 +63,7 @@ def client():
     # rollback transaction and cleanup
     transaction.rollback()
     connection.close()
+    _CURRENT_TEST_SESSION = None
     app.dependency_overrides.pop(_get_db, None)
 
 
@@ -73,28 +81,34 @@ def enable_registration():
 
 
 def _create_user_and_token(client, role: str = "admin"):
+    session = _CURRENT_TEST_SESSION or database.SessionLocal()
     uid = uuid.uuid4().hex[:6]
     username = f"test_{role}_{uid}"
     email = f"{username}@example.com"
     passwd = "password"
 
-    resp = client.post(
-        "/api/auth/register",
-        json={
-            "username": username,
-            "email": email,
-            "password": passwd,
-            "role": role,
-        },
-    )
-    resp.raise_for_status()
+    try:
+        user = User(
+            username=username,
+            email=email,
+            hashed_password=hash_password(passwd),
+            role=role,
+            is_active=True,
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        token = create_access_token(
+            {
+                "sub": str(user.id),
+                "username": user.username,
+                "role": user.role,
+            }
+        )
+    finally:
+        if session is not _CURRENT_TEST_SESSION:
+            session.close()
 
-    login = client.post(
-        "/api/auth/login",
-        json={"username": username, "password": passwd},
-    )
-    login.raise_for_status()
-    token = login.json().get("access_token")
     return {"username": username, "token": token}
 
 

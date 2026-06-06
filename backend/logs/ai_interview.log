@@ -179,3 +179,267 @@
 2026-06-06 08:39:47 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
 2026-06-06 08:39:47 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
 2026-06-06 09:11:20 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:23:19 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:23:56 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:23:56 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:24:01 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:24:01 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:25:00 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:29:11 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:31:05 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:31:11 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:31:17 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:31:24 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:31:31 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:31:37 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:39:00 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:39:59 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:39:59 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:05 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:07 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:08 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:08 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:08 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:09 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:09 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:10 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:10 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:11 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:11 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:14 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:14 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:14 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:14 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:16 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:18 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:18 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:18 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:19 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:20 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:20 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:21 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:21 | INFO | {"action": "AI_INTERVIEW_CONDUCT_TRANSCRIPT", "candidate_id": 1, "transcript": "Candidate responded well.", "transcript_chars": 25}
+2026-06-06 09:40:22 | INFO | {"action": "AI_INTERVIEW_CONDUCT_COMPLETED", "candidate_id": 1, "interview_id": 1, "transcript_chars": 25}
+2026-06-06 09:40:22 | INFO | {"action": "HR_CANDIDATE_VIEW", "candidate_id": 1, "stage": "interviewed", "interview_count": 1, "transcript_chars": 25}
+2026-06-06 09:40:22 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:22 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:24 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:25 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:26 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:27 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:27 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:27 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:28 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:28 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:28 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:28 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:30 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:30 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:30 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:31 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:31 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:31 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:31 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:32 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:32 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:32 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:32 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:32 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "4eff5427-c269-45ef-a796-be6777133a2a", "candidate_id": 1, "email": "repeat@example.com", "total_questions": 1, "source": "public_live_interview_start"}
+2026-06-06 09:40:33 | INFO | {"action": "HR_CANDIDATE_VIEW", "candidate_id": 1, "stage": "interview_in_progress", "interview_count": 1, "transcript_chars": 0}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "4eff5427-c269-45ef-a796-be6777133a2a", "candidate_id": 1, "transcript": "First answer.", "transcript_chars": 13, "question_index": 0, "round_number": 1}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "4eff5427-c269-45ef-a796-be6777133a2a", "candidate_id": 1, "interview_id": 1, "transcript_chars": 13}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_COMPLETED", "session_id": "4eff5427-c269-45ef-a796-be6777133a2a", "candidate_id": 1, "interview_id": 1, "transcript_chars": 13, "answer_count": 1}
+2026-06-06 09:40:33 | INFO | {"action": "HR_CANDIDATE_VIEW", "candidate_id": 1, "stage": "interviewed", "interview_count": 1, "transcript_chars": 13}
+2026-06-06 09:40:33 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "f6835fb9-9d3b-48e9-995a-bd28849ac611", "candidate_id": 1, "email": "silent@example.com", "total_questions": 1, "source": "public_live_interview_start"}
+2026-06-06 09:40:33 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "11470215-0ac8-454c-8192-445685b61a1e", "candidate_id": 1, "email": "retry@example.com", "total_questions": 1, "source": "public_live_interview_start"}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "11470215-0ac8-454c-8192-445685b61a1e", "candidate_id": 1, "transcript": "My answer.", "transcript_chars": 10, "question_index": 0, "round_number": 1}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "11470215-0ac8-454c-8192-445685b61a1e", "candidate_id": 1, "interview_id": 1, "transcript_chars": 10}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_COMPLETED", "session_id": "11470215-0ac8-454c-8192-445685b61a1e", "candidate_id": 1, "interview_id": 1, "transcript_chars": 10, "answer_count": 1}
+2026-06-06 09:40:33 | INFO | {"action": "HR_CANDIDATE_VIEW", "candidate_id": 1, "stage": "interviewed", "interview_count": 1, "transcript_chars": 10}
+2026-06-06 09:40:33 | INFO | {"action": "HR_CANDIDATE_VIEW", "candidate_id": 1, "stage": "interview_scheduled", "interview_count": 2, "transcript_chars": 0}
+2026-06-06 09:40:33 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "1ce3e104-1976-4430-ae54-5ad650cb4ff5", "candidate_id": 1, "email": "retry@example.com", "total_questions": 1, "source": "public_live_interview_start"}
+2026-06-06 09:43:13 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:43:13 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:42 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:42 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:43 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:43 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:44 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:44 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:47 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:47 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:50 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:50 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:50 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:44:50 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:45:20 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:45:20 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:46:46 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:46:46 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:46:46 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:46:46 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:46:49 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:46:49 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:47:23 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:47:23 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:54:14 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:54:14 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:54:14 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:54:14 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:57:35 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:57:35 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:57:40 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:57:40 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:57:43 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:57:43 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:57:43 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:57:43 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 09:58:13 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 10:50:36 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 11:02:13 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 11:02:25 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 11:10:02 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 11:10:02 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 11:10:02 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 11:10:02 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 11:10:04 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 11:10:04 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 11:10:07 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 11:10:07 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 9, "interview_count": 8}
+2026-06-06 11:12:49 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 11:32:26 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 10, "interview_count": 8}
+2026-06-06 11:32:26 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 10, "interview_count": 8}
+2026-06-06 11:34:33 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 10, "interview_count": 8}
+2026-06-06 11:35:03 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 10, "interview_count": 8}
+2026-06-06 11:35:03 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 10, "interview_count": 8}
+2026-06-06 11:35:12 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 10, "interview_count": 8}
+2026-06-06 11:35:12 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 10, "interview_count": 8}
+2026-06-06 11:36:28 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 8}
+2026-06-06 11:36:28 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 8}
+2026-06-06 11:37:01 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 8}
+2026-06-06 11:37:21 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 8}
+2026-06-06 11:37:21 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 8}
+2026-06-06 11:37:41 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 9}
+2026-06-06 11:39:13 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "8a94f346-fa14-4596-ada0-24bb052a82d6", "candidate_id": 11, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 11:43:31 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "8a94f346-fa14-4596-ada0-24bb052a82d6", "candidate_id": 11, "transcript": "You", "transcript_chars": 3, "question_index": 0, "round_number": 1}
+2026-06-06 11:43:32 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "8a94f346-fa14-4596-ada0-24bb052a82d6", "candidate_id": 11, "interview_id": 9, "transcript_chars": 3}
+2026-06-06 11:45:02 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "8a94f346-fa14-4596-ada0-24bb052a82d6", "candidate_id": 11, "transcript": "You You You", "transcript_chars": 11, "question_index": 1, "round_number": 2}
+2026-06-06 11:45:03 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "8a94f346-fa14-4596-ada0-24bb052a82d6", "candidate_id": 11, "interview_id": 9, "transcript_chars": 16}
+2026-06-06 11:45:24 | INFO | {"action": "AI_INTERVIEW_COMPLETED", "session_id": "8a94f346-fa14-4596-ada0-24bb052a82d6", "candidate_id": 11, "interview_id": 9, "transcript_chars": 16, "answer_count": 2}
+2026-06-06 11:48:55 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 9}
+2026-06-06 11:48:55 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 9}
+2026-06-06 11:53:01 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 11:53:04 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 11:54:12 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 11:56:24 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 11, "interview_count": 10}
+2026-06-06 12:00:56 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 10}
+2026-06-06 12:00:56 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 10}
+2026-06-06 12:01:20 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 10}
+2026-06-06 12:01:20 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 10}
+2026-06-06 12:01:26 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 10}
+2026-06-06 12:01:26 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 10}
+2026-06-06 12:01:34 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 11}
+2026-06-06 12:02:13 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "6452fa0a-bd17-4c6b-b461-9f949bbd372f", "candidate_id": 12, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 12:02:28 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "dcc15f08-b0fc-4f0f-882b-e428bdc7e19c", "candidate_id": 12, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 12:04:08 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "dcc15f08-b0fc-4f0f-882b-e428bdc7e19c", "candidate_id": 12, "transcript": "Tell me about the most recent system or feature you built. you You", "transcript_chars": 66, "question_index": 0, "round_number": 1}
+2026-06-06 12:04:08 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "dcc15f08-b0fc-4f0f-882b-e428bdc7e19c", "candidate_id": 12, "interview_id": 11, "transcript_chars": 66}
+2026-06-06 12:05:22 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "dcc15f08-b0fc-4f0f-882b-e428bdc7e19c", "candidate_id": 12, "transcript": "Transcribe the full answer clearly and preserve complete sentences.", "transcript_chars": 67, "question_index": 1, "round_number": 2}
+2026-06-06 12:05:22 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "dcc15f08-b0fc-4f0f-882b-e428bdc7e19c", "candidate_id": 12, "interview_id": 11, "transcript_chars": 135}
+2026-06-06 12:05:42 | INFO | {"action": "AI_INTERVIEW_COMPLETED", "session_id": "dcc15f08-b0fc-4f0f-882b-e428bdc7e19c", "candidate_id": 12, "interview_id": 11, "transcript_chars": 135, "answer_count": 2}
+2026-06-06 12:06:06 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 11}
+2026-06-06 12:06:06 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 12, "interview_count": 11}
+2026-06-06 12:09:15 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 12:35:16 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 12:38:07 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 11}
+2026-06-06 12:38:07 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 11}
+2026-06-06 12:38:19 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 11}
+2026-06-06 12:38:19 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 11}
+2026-06-06 12:38:24 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 11}
+2026-06-06 12:38:24 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 11}
+2026-06-06 12:38:59 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 12}
+2026-06-06 12:39:43 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "f75d0319-db0c-4d71-8542-d35e8574b013", "candidate_id": 13, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 12:41:47 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "f75d0319-db0c-4d71-8542-d35e8574b013", "candidate_id": 13, "transcript": "Felly, mae'n ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r Rwy'n cael ei ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud o'r ddweud.", "transcript_chars": 430, "question_index": 0, "round_number": 1}
+2026-06-06 12:41:47 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "f75d0319-db0c-4d71-8542-d35e8574b013", "candidate_id": 13, "interview_id": 12, "transcript_chars": 430}
+2026-06-06 12:45:47 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "f75d0319-db0c-4d71-8542-d35e8574b013", "candidate_id": 13, "transcript": "Thank you. You You", "transcript_chars": 18, "question_index": 1, "round_number": 2}
+2026-06-06 12:45:47 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "f75d0319-db0c-4d71-8542-d35e8574b013", "candidate_id": 13, "interview_id": 12, "transcript_chars": 450}
+2026-06-06 12:46:13 | INFO | {"action": "AI_INTERVIEW_COMPLETED", "session_id": "f75d0319-db0c-4d71-8542-d35e8574b013", "candidate_id": 13, "interview_id": 12, "transcript_chars": 450, "answer_count": 2}
+2026-06-06 12:48:11 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 12:48:15 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 13:01:29 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 12}
+2026-06-06 13:01:29 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 13, "interview_count": 12}
+2026-06-06 13:01:54 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 12}
+2026-06-06 13:01:54 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 12}
+2026-06-06 13:02:13 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 12}
+2026-06-06 13:02:13 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 12}
+2026-06-06 13:02:17 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 12}
+2026-06-06 13:02:17 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 12}
+2026-06-06 13:02:33 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 13}
+2026-06-06 13:03:25 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "d516b6ad-b8cc-4c00-9693-f4a6fc72a3e8", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:18:20 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 13}
+2026-06-06 13:18:20 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 13}
+2026-06-06 13:19:12 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "70206167-a8b0-48f2-893a-39d7dc8833e0", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:28:08 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 13}
+2026-06-06 13:28:09 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 14, "interview_count": 13}
+2026-06-06 13:30:10 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "9c4fc83e-c315-47d3-9f21-1c40e68f648f", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:30:49 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "731827d8-fb9d-4c1d-86a9-27445131a536", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:30:58 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "c71e6210-0f25-406a-9d9a-baf4ead60818", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:07 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "25a369c1-c4bf-480f-8503-ab3fc8c724a1", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:15 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "b27e6b46-60be-4c8e-a99e-806df7f50ba1", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:17 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "94b4b97d-bafb-4cba-a007-9d356d09ce9b", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:24 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "835624ea-d1eb-4e99-9e2e-f7aca3e682d5", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:30 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "03096d38-b013-43f7-826d-71abf683fe9e", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:34 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "4ef1f2ef-a1b2-4879-ab7d-3c04a241fc29", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:35 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "c0d14ba1-fc76-413c-ab83-62305ae98dff", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:47 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "0ec9d7a4-f23a-4546-8de2-e192185603fd", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:31:52 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "762aa3ce-535e-40f7-b0d2-a4ca8a5f00b5", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:36:02 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 13}
+2026-06-06 13:36:03 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 13}
+2026-06-06 13:36:11 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 13}
+2026-06-06 13:36:11 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 13}
+2026-06-06 13:36:21 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 14}
+2026-06-06 13:36:50 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "2cc3f5fe-1a95-493f-ab05-a1d08af5f5e3", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:37:00 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "06ea5359-4c06-4350-bcc5-8e8780213706", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:37:15 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "0de60b74-16e3-44ed-a7ee-6ebd47bd0e56", "candidate_id": 14, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:37:36 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "99de8072-5abe-4190-aa71-56cf4d8ad584", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:55:54 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 14}
+2026-06-06 13:55:54 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 14}
+2026-06-06 13:56:05 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 15}
+2026-06-06 13:56:11 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 15}
+2026-06-06 13:56:11 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 15}
+2026-06-06 13:59:02 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "510c7e77-c826-47fe-a98f-8a906e352cbd", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 13:59:13 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 16}
+2026-06-06 13:59:54 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "237b893e-1b29-4916-a59b-f2a3b5a534c0", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:00:06 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "19a26c0e-a4eb-4ee0-97ff-a1a8ad4d84c8", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:00:20 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "11fd21f9-babf-4b6d-a10c-83546b7dfc9a", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:00:27 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "287cae96-289f-438d-8f5c-7417e3398887", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:00:46 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "65b1da7a-6a1e-4298-8c97-517332a5b86b", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:01:00 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "1b1b2e1a-79f8-45db-98e9-26d786464368", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:01:14 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "62721d5f-0ab0-4920-8bc3-85fa8371fe2d", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:01:18 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "f842cd75-8142-4969-ae35-146c41059ae2", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:01:21 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "4af3b1b3-ecc5-4796-986d-f8f249ba3a72", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:01:26 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "84ca4152-44b2-4aba-80ba-73b5775249c6", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:28:29 | INFO | {"action": "APP_START", "message": "Backend startup completed"}
+2026-06-06 14:29:49 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "84fb6780-7338-4292-8f0f-0efd0b5bbf68", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:29:56 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "198d8b31-ace5-4aa8-a785-6fd2ddb0f035", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:31:55 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "198d8b31-ace5-4aa8-a785-6fd2ddb0f035", "candidate_id": 15, "transcript": "Thank you. You", "transcript_chars": 14, "question_index": 0, "round_number": 1}
+2026-06-06 14:31:56 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "198d8b31-ace5-4aa8-a785-6fd2ddb0f035", "candidate_id": 15, "interview_id": 16, "transcript_chars": 14}
+2026-06-06 14:36:36 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 16}
+2026-06-06 14:36:36 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 16}
+2026-06-06 14:36:42 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 17}
+2026-06-06 14:37:33 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "90de5d82-288d-48cf-97f7-37ba55ca59a4", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:39:44 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 17}
+2026-06-06 14:39:44 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 17}
+2026-06-06 14:39:48 | INFO | {"action": "HR_CANDIDATE_LIST_VIEW", "candidate_count": 15, "interview_count": 18}
+2026-06-06 14:40:31 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "99f8f2fc-b1c7-41ad-9fc5-0c91e181fac0", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:49:48 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "8a9e6a2c-1aa3-463c-a1c7-06d93bf7c2e8", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 14:54:33 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "dd8f8170-2c69-49da-ad7d-727ab7d449a3", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 15:01:32 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "b2d3e7e8-44db-425f-9a8e-8d9ca679565d", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 15:08:36 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "16ccb37c-2e1c-4927-a3d3-d17dad58764d", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 15:12:14 | INFO | {"action": "AI_INTERVIEW_START", "session_id": "e0f22e44-9fb1-48a3-9e9a-38bdff63e07c", "candidate_id": 15, "email": "1MP22CG015@gmail.com", "total_questions": 2, "source": "public_live_interview_start"}
+2026-06-06 15:15:55 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "e0f22e44-9fb1-48a3-9e9a-38bdff63e07c", "candidate_id": 15, "transcript": "Myself Dilip Kumar K. I am a recent graduate of BGSEET. Over these past few years, I have worked in many projects. One of the projects is HRMSAI. Human Resource Management Systema. There are five portals in this system. One is Admin. Second one is Manager. Third one is HR. Fourth one is Candidate. Fifth one is Employee. Third one is HR. Fourth one is Candidate. Fifth one is Employee.", "transcript_chars": 386, "question_index": 0, "round_number": 1}
+2026-06-06 15:15:55 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "e0f22e44-9fb1-48a3-9e9a-38bdff63e07c", "candidate_id": 15, "interview_id": 18, "transcript_chars": 386}
+2026-06-06 15:16:56 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT", "session_id": "e0f22e44-9fb1-48a3-9e9a-38bdff63e07c", "candidate_id": 15, "transcript": "how do you approach debugging issue it's a good question after you your interview schedule start the session and he will ask the role-based question by one by one ha", "transcript_chars": 165, "question_index": 1, "round_number": 2}
+2026-06-06 15:16:56 | INFO | {"action": "AI_INTERVIEW_TRANSCRIPT_SAVED", "session_id": "e0f22e44-9fb1-48a3-9e9a-38bdff63e07c", "candidate_id": 15, "interview_id": 18, "transcript_chars": 553}

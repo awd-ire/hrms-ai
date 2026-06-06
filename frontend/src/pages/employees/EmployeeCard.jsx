@@ -6,7 +6,7 @@ const EmployeeCard = ({ employee }) => {
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border">
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="font-semibold text-gray-800 dark:text-white">
+          <h3 className="font-semibold text-slate-700 dark:text-white">
             {employee.first_name} {employee.last_name}
           </h3>
 

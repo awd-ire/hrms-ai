@@ -17,7 +17,7 @@ const Modal = ({ open, onClose, title, children }) => {
 
       <div className="relative bg-white dark:bg-gray-800 w-full max-w-3xl rounded-lg shadow-lg p-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center border-b pb-2 mb-3 dark:border-gray-700">
-          <h2 className="font-semibold text-gray-800 dark:text-white">
+          <h2 className="font-semibold text-slate-700 dark:text-white">
             {title}
           </h2>
           <button

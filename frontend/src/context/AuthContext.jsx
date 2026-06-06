@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   const idleTimerRef = React.useRef(null);
   const hiddenAtRef = React.useRef(null);
   const isPublicRoute = useMemo(
-    () => ["/login", "/register", "/careers"].includes(location.pathname),
+    () => ["/login", "/register"].includes(location.pathname),
     [location.pathname]
   );
 

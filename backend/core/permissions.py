@@ -12,10 +12,12 @@ ROLE_ADMIN = "admin"
 ROLE_MANAGER = "senior_manager"
 ROLE_HR = "hr_recruiter"
 ROLE_EMPLOYEE = "employee"
+ROLE_CANDIDATE = "candidate"
 
-ALL_ROLES = [ROLE_ADMIN, ROLE_MANAGER, ROLE_HR, ROLE_EMPLOYEE]
+ALL_ROLES = [ROLE_ADMIN, ROLE_MANAGER, ROLE_HR, ROLE_EMPLOYEE, ROLE_CANDIDATE]
 PRIVILEGED_EMPLOYEE_ROLES = [ROLE_ADMIN, ROLE_MANAGER, ROLE_HR]
 ROLE_RANK = {
+    ROLE_CANDIDATE: -1,
     ROLE_EMPLOYEE: 0,
     ROLE_HR: 1,
     ROLE_MANAGER: 2,
@@ -90,6 +92,10 @@ def is_hr(user: User) -> bool:
 
 def is_employee(user: User) -> bool:
     return user.role == ROLE_EMPLOYEE
+
+
+def is_candidate(user: User) -> bool:
+    return user.role == ROLE_CANDIDATE
 
 
 def assert_can_access_employee_record(

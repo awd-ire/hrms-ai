@@ -80,15 +80,16 @@ def test_recruitment_forbidden_for_employee(employee_auth_header, client):
     assert resp.status_code == 403
 
 
-def test_ai_resume_screen_shortlists_candidate(client, monkeypatch):
+def test_ai_resume_screen_shortlists_candidate(client, monkeypatch, admin_auth_header):
     import uuid
     from datetime import date
     from services import ai_service
     hr_username = "hr_screen_user"
     hr_password = "password"
     resp = client.post(
-        "/api/auth/register",
+        "/api/users/create",
         json={"username": hr_username, "email": "hrscreen@example.com", "password": hr_password, "role": "hr_recruiter"},
+        headers=admin_auth_header,
     )
     assert resp.status_code == 201
     login = client.post("/api/auth/login", json={"username": hr_username, "password": hr_password})

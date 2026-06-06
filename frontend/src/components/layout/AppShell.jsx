@@ -27,7 +27,13 @@ const AppShell = ({ children }) => {
         <Topbar onMenuClick={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          {children ?? <Outlet />}
+          <div
+            className={`min-h-full rounded-[2rem] border shadow-[0_20px_80px_-48px_rgba(15,23,42,0.45)] backdrop-blur ${theme.contentShellClass}`}
+          >
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-6">
+              {children ?? <Outlet />}
+            </div>
+          </div>
         </main>
       </div>
     </div>

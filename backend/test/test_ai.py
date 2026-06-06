@@ -17,7 +17,7 @@ def _create_hr_and_manager(client, admin_auth_header):
     hr_username = f"hr_user_{uid}"
     hr_email = f"hr_{uid}@example.com"
     resp = client.post(
-        "/api/auth/register",
+        "/api/users/create",
         json={"username": hr_username, "email": hr_email, "password": "password", "role": "hr_recruiter"},
         headers=admin_auth_header,
     )
@@ -31,7 +31,7 @@ def _create_hr_and_manager(client, admin_auth_header):
     mgr_username = f"mgr_user_{uid}"
     mgr_email = f"mgr_{uid}@example.com"
     resp = client.post(
-        "/api/auth/register",
+        "/api/users/create",
         json={"username": mgr_username, "email": mgr_email, "password": "password", "role": "senior_manager"},
         headers=admin_auth_header,
     )
